@@ -1,8 +1,16 @@
 {
   "type": "module",
   "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.1",
     "mongodb": "^6.18.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "start": "node --loader ts-node/esm index.ts"
   }
 }
