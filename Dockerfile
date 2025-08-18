@@ -18,4 +18,4 @@ COPY package.json .
 COPY tsconfig.json .
 
 RUN npm i
-CMD [ "npm start" ]
+CMD ["sh", "-c", "npm start"]
