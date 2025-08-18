@@ -14,7 +14,7 @@ export async function getAboutMeForUser(id: DiscordId) {
             > Member: **<@${member.Id}>**
             > Street Cred: ${member.StreetCred}
             > Access Level: ${member.AccessLevel}
-            > Lounge Time: Days: ${formattedTime.days}, Minutes: ${formattedTime.minutes}, Seconds: ${formattedTime.seconds}
+            > Lounge Time: Days: ${formattedTime.days}, Hours: ${formattedTime.hours}, Minutes: ${formattedTime.minutes}, Seconds: ${formattedTime.seconds}
         `;
     } catch (error) {
         throw new Error(`${error}`);
