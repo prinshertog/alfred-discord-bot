@@ -1,6 +1,6 @@
 import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Events, GatewayIntentBits, ActivityType } from 'discord.js';
 import { getAboutMeForUser, registerIfNotRegistered } from './logic/members.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import dotenv from 'dotenv';
@@ -18,7 +18,14 @@ const client = new Client({ intents: [
 const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
-  console.log(`Logged in as ${readyClient.user.tag}!`); 
+  console.log(`Logged in as ${readyClient.user.tag}!`);
+  client.user.setPresence({
+    status: "online",
+    activities: [{
+      name: "Vengeance!",
+      type: ActivityType.Custom,
+    }]
+  })
 });
 
 client.on(Events.InteractionCreate, async interaction => {
