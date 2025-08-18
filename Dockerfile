@@ -15,6 +15,7 @@ COPY logic logic
 COPY index.ts .
 COPY package-lock.json .
 COPY package.json .
+COPY tsconfig.json .
 
 RUN npm i
 CMD [ "npm start" ]
