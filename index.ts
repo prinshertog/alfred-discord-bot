@@ -2,7 +2,7 @@ import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { getAboutMeForUser, registerIfNotRegistered } from './logic/members.js';
-import { addLoungeTime } from './database/members.js';
+import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const { TOKEN } = process.env;
@@ -13,7 +13,9 @@ const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildMembers,
   GatewayIntentBits.GuildVoiceStates
-] });
+]});
+
+const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`); 
@@ -38,19 +40,17 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   const user = newState.member.user.username;
-  const id: DiscordId = newState.member.id
-  let timer;
+  const id: DiscordId = newState.member.id;
+
   if (!oldState.channel && newState.channel) {
     console.log(`${user} joined ${newState.channel.name}`);
+
     await registerIfNotRegistered(id);
-    console.log(`Started timer for user ${user}.`);
-    timer = setInterval(() => {
-      addLoungeTime(id, 5);
-    }, 5000);
+    await startTimer(userTimers, user, id);
   } else if (oldState.channel && !newState.channel) {
     console.log(`${user} left ${oldState.channel.name}`);
-    clearInterval(timer);
-    console.log(`Stopped timer for user ${user}.`);
+
+    await stopTimer(userTimers, user, id);
   } else if (oldState.channelId !== newState.channelId) {
     console.log(`${user} switched from ${oldState.channel.name} to ${newState.channel.name}`);
   }
