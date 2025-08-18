@@ -10,11 +10,16 @@ export async function getAboutMeForUser(id: DiscordId) {
         const member: Member = result;
         const duration = Temporal.Duration.from({ seconds: member.LoungeTime });
         const formattedTime = duration.round({ largestUnit: "days" });
+        const timeParts = [];
+        if (formattedTime.days) timeParts.push(`\`Days: ${formattedTime.days}\``);
+        if (formattedTime.hours) timeParts.push(`\`Hours: ${formattedTime.hours}\``);
+        if (formattedTime.minutes) timeParts.push(`\`Minutes: ${formattedTime.minutes}\``);
+        timeParts.push(`\`Seconds: ${formattedTime.seconds}\``); // always show seconds
         return `
             > Member: **<@${member.Id}>**
             > Street Cred: ${member.StreetCred}
             > Access Level: ${member.AccessLevel}
-            > Lounge Time: Days: ${formattedTime.days}, Hours: ${formattedTime.hours}, Minutes: ${formattedTime.minutes}, Seconds: ${formattedTime.seconds}
+            > Lounge Time: ${timeParts.join(' ')}
         `;
     } catch (error) {
         throw new Error(`${error}`);
