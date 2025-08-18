@@ -12,9 +12,9 @@ COPY data data
 COPY database database
 COPY lib lib
 COPY logic logic
-COPY index.js .
+COPY index.ts .
 COPY package-lock.json .
 COPY package.json .
 
 RUN npm i
-CMD [ "index.js" ]
+CMD [ "index.ts" ]
