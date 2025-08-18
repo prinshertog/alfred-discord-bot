@@ -17,4 +17,4 @@ COPY package-lock.json .
 COPY package.json .
 
 RUN npm i
-CMD [ "index.ts" ]
+CMD [ "npm start" ]
