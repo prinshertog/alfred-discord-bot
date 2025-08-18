@@ -1,0 +1,24 @@
+name: Build full application and push to docker hub.
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+    - name: Build docker image for application
+      run: docker build . -t "prinshertog/discord-void-bot"
+
+    - name: Push docker image to dockerhub
+      run: docker push prinshertog/discord-void-bot

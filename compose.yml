@@ -1,0 +1,20 @@
+services:
+  void-bot:
+    image: prinshertog/discord-void-bot
+    environment:
+      - CONN_STR=mongodb://user:pass@mongodb:27017
+      - TOKEN=
+      - CLIENT_ID=
+      - GUILD_ID=
+      - DB_NAME=bot-db
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGODB_INITDB_ROOT_USERNAME=user
+      - MONGODB_INITDB_ROOT_PASSWORD=pass
+    volumes:
+      - type: bind
+        source: ./dockerdata
+        target: /data/db

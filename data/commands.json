@@ -1,0 +1,149 @@
+[
+    {
+        "name": "standing",
+        "description": "Gives you your current faction standing!"
+    },
+    {
+        "name": "about",
+        "description": "Gives you information about the bot."
+    },
+    {
+        "name": "help",
+        "description": "Gives you all availlable commands."
+    },
+    {
+        "name": "wanted",
+        "description": "Wanted list commands.",
+        "options": [
+            {
+                "type": 1,
+                "name": "show",
+                "description": "Shows all wanted"
+            },
+            {
+                "type": 1,
+                "name": "add",
+                "description": "Adds a wanted player",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "knownas",
+                        "description": "Known as",
+                        "required": true
+                    },
+                    {
+                        "type": 4,
+                        "name": "bounty",
+                        "description": "Known as",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "discordid",
+                        "description": "Known as",
+                        "required": false
+                    },
+                    {
+                        "type": 3,
+                        "name": "robloxid",
+                        "description": "Known as",
+                        "required": false
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "remove",
+                "description": "Removes a wanted player",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "knownas",
+                        "description": "Player username",
+                        "required": true
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "members",
+        "description": "Command to handle members.",
+        "options": [
+            {
+                "type": 1,
+                "name": "show",
+                "description": "Show all members"
+            },
+            {
+                "type": 1,
+                "name": "add",
+                "description": "Add a user",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "knownas",
+                        "description": "Known as",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "robloxid",
+                        "description": "Player roblox id",
+                        "required": true
+                    },
+                    {
+                        "type": 4,
+                        "name": "standing",
+                        "description": "Player standing",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "rank",
+                        "description": "Player rank",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "discordid",
+                        "description": "Player discord id",
+                        "required": false
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "remove",
+                "description": "Remove a user",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "knownas",
+                        "description": "Player username",
+                        "required": true
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "updatestanding",
+                "description": "Updates a user's standing",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "knownas",
+                        "description": "Player known as username",
+                        "required": true
+                    },
+                    {
+                        "type": 4,
+                        "name": "standing",
+                        "description": "Player standing, can be -number",
+                        "required": true
+                    }
+                ]
+            }
+        ]
+    }
+]
