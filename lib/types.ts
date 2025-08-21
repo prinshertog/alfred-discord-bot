@@ -1,7 +1,7 @@
 export type DiscordId = string;
 export type Member = {
     Id: DiscordId,
-    StreetCred: string,
+    StreetCred: number,
     AccessLevel: number,
     LoungeTime: number
 }

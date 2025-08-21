@@ -1,7 +1,7 @@
 import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
 import { Client, Events, GatewayIntentBits, ActivityType } from 'discord.js';
-import { getAboutMeForUser, registerIfNotRegistered } from './logic/userLogic.js';
+import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import { game } from './logic/hangmanLogic.js';
 import dotenv from 'dotenv';
@@ -47,6 +47,17 @@ client.on(Events.InteractionCreate, async interaction => {
         let letter: string = interaction.options.getString("letter");
         if (letter) letter = letter.toLowerCase();
         await game(id, letter, interaction, userGames, gameStates);
+        break;
+      case "leaderboard":
+        let amount = interaction.options.getInteger("entries");
+        switch(interaction.options.getSubcommand()) {
+          case "streetcred":
+            interaction.reply(await getLeaderBoard(amount, "streetcred", client));
+            break;
+          case "loungetime":
+            interaction.reply(await getLeaderBoard(amount, "loungetime", client));
+            break;
+        }
         break;
     }
 

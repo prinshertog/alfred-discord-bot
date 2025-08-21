@@ -70,3 +70,25 @@ export async function updateStreetCred(id: DiscordId, amount: number) {
         console.error(error);
     }
 }
+
+export async function getTopStreetCredMembers(amount: number) {
+    try {
+        return await collection.find({})
+            .sort({StreetCred: -1})
+            .limit(amount)
+            .toArray();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export async function getTopLoungeTimeMembers(amount: number) {
+    try {
+        return await collection.find({})
+            .sort({LoungeTime: -1})
+            .limit(amount)
+            .toArray();
+    } catch (error) {
+        console.error(error);
+    }
+}
