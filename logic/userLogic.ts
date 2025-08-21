@@ -56,7 +56,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
                     const user = client.users.fetch(member.Id);
                     message += `
                         > **${i + 1}.** *${(await user).displayName}*
-                        > Cred: ${member.StreetCred}**
+                        > Cred: **${member.StreetCred}**
                     `;
                 }
                 return message;
