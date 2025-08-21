@@ -13,5 +13,35 @@
                 "description": "Letter you would like to gues"
             }
         ]
+    },
+    {
+        "name": "leaderboard",
+        "description": "Gives you a leaderboard",
+        "options": [
+            {
+                "type": 1,
+                "name": "streetcred",
+                "description": "Gives the streetcred leaderboard.",
+                "options": [{
+                        "type": 4,
+                        "name": "entries",
+                        "description": "Amount of entries to be shown.",
+                        "required": true
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "loungetime",
+                "description": "Gives the loungetime leaderboard.",
+                "options": [{
+                        "type": 4,
+                        "name": "entries",
+                        "description": "Amount of entries to be shown.",
+                        "required": true
+                    }
+                ]
+            }
+        ]
     }
 ]

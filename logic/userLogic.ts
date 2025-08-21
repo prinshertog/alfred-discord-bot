@@ -1,6 +1,7 @@
-import {DiscordId, Member} from '../lib/types';
-import { getMemberInformation, createMember } from '../database/members.js';
-import { Temporal } from '@js-temporal/polyfill';
+import { DiscordId, Member } from '../lib/types';
+import { formatLoungeTime, toMember } from '../lib/format.js';
+import { getMemberInformation, createMember, getTopStreetCredMembers, getTopLoungeTimeMembers } from '../database/members.js';
+import { Client } from 'discord.js';
 export async function getAboutMeForUser(id: DiscordId) {
     try {
         const result = await getMemberInformation(id);
@@ -8,18 +9,11 @@ export async function getAboutMeForUser(id: DiscordId) {
             return result;
         }
         const member: Member = result;
-        const duration = Temporal.Duration.from({ seconds: member.LoungeTime });
-        const formattedTime = duration.round({ largestUnit: "days" });
-        const timeParts = [];
-        if (formattedTime.days) timeParts.push(`\`Days: ${formattedTime.days}\``);
-        if (formattedTime.hours) timeParts.push(`\`Hours: ${formattedTime.hours}\``);
-        if (formattedTime.minutes) timeParts.push(`\`Minutes: ${formattedTime.minutes}\``);
-        timeParts.push(`\`Seconds: ${formattedTime.seconds}\``); // always show seconds
         return `
             > Member: **<@${member.Id}>**
             > Street Cred: ${member.StreetCred}
             > Access Level: ${member.AccessLevel}
-            > Lounge Time: ${timeParts.join(' ')}
+            > Lounge Time: ${await formatLoungeTime(member)}
         `;
     } catch (error) {
         throw new Error(`${error}`);
@@ -32,6 +26,41 @@ export async function registerIfNotRegistered(id: DiscordId) {
         if (result instanceof Error) {
             await createMember(id);
             console.log(`User ${id} registered!`);
+        }
+    } catch (error) {
+        throw new Error(`${error}`);
+    }
+}
+
+export async function getLeaderBoard(amount: number, leaderBoardType: string, client: Client) {
+    try {
+        switch (leaderBoardType) {
+            case "loungetime": {
+                let message = "**Lounge Time Leader Board**";
+                let memberData = await getTopLoungeTimeMembers(amount);
+                for (let i = 0; i < memberData.length; i++) {
+                    const member = toMember(memberData[i]);
+                    const user = client.users.fetch(member.Id);
+                    message += `
+                        > **${i + 1}.** *${(await user).displayName}*
+                        > ${await formatLoungeTime(member)}
+                    `;
+                }
+                return message;
+            }
+            case "streetcred": {
+                let message = "**StreetCred Leader Board**";
+                let memberData = await getTopStreetCredMembers(amount);
+                for (let i = 0; i < memberData.length; i++) {
+                    const member = toMember(memberData[i]); 
+                    const user = client.users.fetch(member.Id);
+                    message += `
+                        > **${i + 1}.** *${(await user).displayName}*
+                        > Cred: ${member.StreetCred}**
+                    `;
+                }
+                return message;
+            }
         }
     } catch (error) {
         throw new Error(`${error}`);
