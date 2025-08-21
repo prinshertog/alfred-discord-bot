@@ -8,7 +8,7 @@ export async function game(
     letter: string, 
     interaction: ChatInputCommandInteraction, 
     userGames: Map<DiscordId, boolean>, 
-    gameStates: Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[]}>
+    gameStates: Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>
 ) {
     try {
         let gameStarted = userGames.get(id);
@@ -18,10 +18,12 @@ export async function game(
                 {
                     currentHangmanSize: 1, 
                     word: generatedWord, 
-                    guessedLetters: []
+                    guessedLetters: [],
+                    wrongLetters: []
                 }
             ); // Save the word.
             userGames.set(id, true); // Set the game to started for user.
+            await startCleanupTimer(id, userGames, gameStates);
             interaction.reply({
                 content:`
                     > **Game started.**
@@ -39,25 +41,31 @@ export async function game(
         }
         let word = gameStates.get(id).word;
         let guessedLetters = gameStates.get(id).guessedLetters;
+        let wrongLetters = gameStates.get(id).wrongLetters;
 
-        if (!guessedLetters.includes(letter)) {
-            await addLetterToGuessedLetters(word, guessedLetters, letter);
-        } else {
-            let message = returnWithGuessedLetters(
+        if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) {
+            let message = returnWithLetters(
                 "**You already guessed that letter!**\n", 
-                guessedLetters
+                guessedLetters,
+                wrongLetters
             );
             interaction.reply({
                 content: message,
                 flags: MessageFlags.Ephemeral
             });
             return;
+        } else {
+            await addLetterToGuessedLetters(word, guessedLetters, letter);
+            if (!wrongLetters.includes(letter) && !guessedLetters.includes(letter)) {
+                wrongLetters.push(letter);
+            }
         }
         
         if (isValidLetter(letter, word)) {
-            let message = returnWithGuessedLetters(
+            let message = returnWithLetters(
                 "That was a valid letter! **+20 street cred.**\n", 
-                guessedLetters
+                guessedLetters,
+                wrongLetters
             );
             updateStreetCred(id, 20);
             if (wordEqualsGuessedLetters(word, guessedLetters)) {
@@ -74,9 +82,10 @@ export async function game(
                 flags: MessageFlags.Ephemeral
             });
         } else {
-            let message = returnWithGuessedLetters(
+            let message = returnWithLetters(
                 "That letter is not correct! **Womp Womp** -10 street cred\n", 
-                guessedLetters
+                guessedLetters,
+                wrongLetters
             );
             message += await draw(gameStates.get(id).currentHangmanSize);
             updateStreetCred(id, -10)
@@ -132,12 +141,15 @@ function wordEqualsGuessedLetters(
     return true;
 }
 
-function returnWithGuessedLetters(
+function returnWithLetters(
     message: string, 
-    guessedLetters: string[]
+    guessedLetters: string[],
+    wrongLetters: string[]
 ) {
     message += "```"
     message += getGuessedLetters(guessedLetters);
+    message += "\n"
+    message += getWrongLetters(wrongLetters);
     message += "```"
     return message;
 }
@@ -167,6 +179,27 @@ function getGuessedLetters(
         message += letter + " ";
     }
     return message;
+}
+
+function getWrongLetters(
+    wrongLetters: string[]
+) {
+    let message: string = "\nWrong Letters:\n";
+    for (let letter of wrongLetters) {
+        message += letter + " ";
+    }
+    return message;
+}
+
+async function startCleanupTimer(
+    id: DiscordId,
+    userGames: Map<DiscordId, boolean>,
+    gameStates: Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>
+) {
+    setTimeout(() => {
+        userGames.delete(id);
+        gameStates.delete(id);
+    }, 3600000);
 }
 
 async function draw(
