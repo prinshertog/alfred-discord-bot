@@ -44,7 +44,8 @@ client.on(Events.InteractionCreate, async interaction => {
         await interaction.reply(`${await getAboutMeForUser(id)}`);
         break;
       case "hangman":
-        const letter: string = interaction.options.getString("letter").toLowerCase();
+        let letter: string = interaction.options.getString("letter");
+        if (letter) letter = letter.toLowerCase();
         await game(id, letter, interaction, userGames, gameStates);
         break;
     }

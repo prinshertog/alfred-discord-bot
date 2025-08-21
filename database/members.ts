@@ -55,9 +55,17 @@ export async function getAllMembers() {
     }
 }
 
-export async function addLoungeTime(id: DiscordId, time) {
+export async function addLoungeTime(id: DiscordId, time: number) {
     try {
         await collection.updateOne({Id: id}, {$inc: {LoungeTime: time}});
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export async function updateStreetCred(id: DiscordId, amount: number) {
+    try {
+        await collection.updateOne({Id: id}, {$inc: {StreetCred: amount}});
     } catch (error) {
         console.error(error);
     }
