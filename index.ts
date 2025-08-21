@@ -1,8 +1,9 @@
 import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
 import { Client, Events, GatewayIntentBits, ActivityType } from 'discord.js';
-import { getAboutMeForUser, registerIfNotRegistered } from './logic/members.js';
+import { getAboutMeForUser, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
+import { game } from './logic/hangmanLogic.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const { TOKEN } = process.env;
@@ -16,6 +17,8 @@ const client = new Client({ intents: [
 ]});
 
 const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
+const userGames: Map<DiscordId, boolean> = new Map();
+const gameStates = new Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[]}>();
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
@@ -31,13 +34,20 @@ client.on(Events.ClientReady, readyClient => {
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isChatInputCommand()) return;
   try {
-    if (interaction.commandName === 'aboutme') {
-      const id = interaction?.member?.user.id
-      await registerIfNotRegistered(id);
-      if (!id) {
-        throw new Error("User id not found!");
-      }
-      interaction.reply(`${await getAboutMeForUser(id)}`);
+    const id = interaction?.member?.user.id
+    await registerIfNotRegistered(id);
+    if (!id) {
+      throw new Error("User id not found!");
+    }
+    switch(interaction.commandName) {
+      case "aboutme":
+        await interaction.reply(`${await getAboutMeForUser(id)}`);
+        break;
+      case "hangman":
+        let letter: string = interaction.options.getString("letter");
+        if (letter) letter = letter.toLowerCase();
+        await game(id, letter, interaction, userGames, gameStates);
+        break;
     }
 
   } catch (error) {

@@ -2,5 +2,16 @@
     {
         "name": "aboutme",
         "description": "Gives you information about you!"
+    },
+    {
+        "name": "hangman",
+        "description": "Starts hangman game.",
+        "options": [
+            {
+                "type": 3,
+                "name": "letter",
+                "description": "Letter you would like to gues"
+            }
+        ]
     }
 ]
