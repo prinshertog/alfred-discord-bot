@@ -26,6 +26,7 @@ export async function game(
                 content:`
                     > **Game started.**
                     > Please type your first letter with "/hangman (letter)".
+                    > Language: **Nederlands**
                 `,
                 flags: MessageFlags.Ephemeral
             });
@@ -41,7 +42,18 @@ export async function game(
 
         if (!guessedLetters.includes(letter)) {
             await addLetterToGuessedLetters(word, guessedLetters, letter);
+        } else {
+            let message = returnWithGuessedLetters(
+                "**You already guessed that letter!**\n", 
+                guessedLetters
+            );
+            interaction.reply({
+                content: message,
+                flags: MessageFlags.Ephemeral
+            });
+            return;
         }
+        
         if (isValidLetter(letter, word)) {
             let message = returnWithGuessedLetters(
                 "That was a valid letter! **+20 street cred.**\n", 
@@ -69,7 +81,8 @@ export async function game(
             message += await draw(gameStates.get(id).currentHangmanSize);
             updateStreetCred(id, -10)
             if (gameStates.get(id).currentHangmanSize >= 7) {
-                message += "**Game ended**";
+                message += "> **Game ended**\n";
+                message += `> The word was: *${word}*`;
                 userGames.delete(id);
                 gameStates.delete(id);
             } else {
@@ -80,6 +93,7 @@ export async function game(
                 flags: MessageFlags.Ephemeral
             });
         }
+
     } catch (error) {
         interaction.reply({
             content: `
