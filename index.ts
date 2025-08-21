@@ -18,7 +18,7 @@ const client = new Client({ intents: [
 
 const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const userGames: Map<DiscordId, boolean> = new Map();
-const gameStates = new Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[]}>();
+const gameStates = new Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>();
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
