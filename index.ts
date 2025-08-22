@@ -1,10 +1,11 @@
 import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
-import { Client, Events, GatewayIntentBits, ActivityType } from 'discord.js';
+import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags } from 'discord.js';
 import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import { game } from './logic/hangmanLogic.js';
 import dotenv from 'dotenv';
+import { createEmbed } from './lib/embed.js';
 dotenv.config();
 const { TOKEN } = process.env;
 
@@ -41,7 +42,14 @@ client.on(Events.InteractionCreate, async interaction => {
     }
     switch(interaction.commandName) {
       case "aboutme":
-        await interaction.reply(`${await getAboutMeForUser(id)}`);
+        await interaction.reply({
+          embeds: [createEmbed(
+            0x0099FF, 
+            "About me", 
+            `${await getAboutMeForUser(id)}`
+          )],
+          flags: MessageFlags.Ephemeral
+        });
         break;
       case "hangman":
         let letter: string = interaction.options.getString("letter");
@@ -52,10 +60,22 @@ client.on(Events.InteractionCreate, async interaction => {
         let amount = interaction.options.getInteger("entries");
         switch(interaction.options.getSubcommand()) {
           case "streetcred":
-            interaction.reply(await getLeaderBoard(amount, "streetcred", client));
+            interaction.reply({
+              embeds: [createEmbed(
+                0x0099FF,
+                "Street Cred Leader Board",
+                await getLeaderBoard(amount, "streetcred", client)
+              )]
+            });
             break;
           case "loungetime":
-            interaction.reply(await getLeaderBoard(amount, "loungetime", client));
+            interaction.reply({
+              embeds: [createEmbed(
+                0x0099FF, 
+                "Lounge Time Leader Board", 
+                await getLeaderBoard(amount, "loungetime", client)
+              )]
+            });
             break;
         }
         break;
