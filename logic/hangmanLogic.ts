@@ -1,6 +1,7 @@
 import { DiscordId } from "../lib/types";
 import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { updateStreetCred } from "../database/members.js";
+import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
 
 export async function game(
@@ -25,18 +26,21 @@ export async function game(
             userGames.set(id, true); // Set the game to started for user.
             await startCleanupTimer(id, userGames, gameStates);
             interaction.reply({
-                content:`
-                    > **Game started.**
-                    > Please type your first letter with "/hangman (letter)".
-                    > Language: **Nederlands**
-                `,
+                embeds: [createEmbed(
+                    0x3bff3e,
+                    "Game started",
+                    `
+                        Please type your first letter with "/hangman (letter)".
+                        Language: **Nederlands**
+                    `
+                )],
                 flags: MessageFlags.Ephemeral
             });
             return;
         } else if (letter && letter.length > 1) {
             throw new Error(`
-                    > **Not a letter**
-                    > Make sure you type a letter.
+                    **Not a letter**
+                    Make sure you type a letter.
                 `);
         }
         let word = gameStates.get(id).word;
@@ -50,7 +54,13 @@ export async function game(
                 wrongLetters
             );
             interaction.reply({
-                content: message,
+                embeds: [createEmbed(
+                    0xe82b2b,
+                    "Hangman",
+                    `
+                        ${message}
+                    `
+                )],
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -72,13 +82,19 @@ export async function game(
                 userGames.delete(id);
                 gameStates.delete(id);
                 message += `
-                    > You guessed the word! **+50 street cred**
-                    > **Game Ended**
+                    You guessed the word! **+50 street cred**
+                    **Game Ended**
                 `
                 updateStreetCred(id, 50);
             }
             interaction.reply({
-                content: message,
+                embeds: [createEmbed(
+                    0x3bff3e,
+                    "Hangman",
+                    `
+                        ${message}
+                    `
+                )],
                 flags: MessageFlags.Ephemeral
             });
         } else {
@@ -90,24 +106,32 @@ export async function game(
             message += await draw(gameStates.get(id).currentHangmanSize);
             updateStreetCred(id, -10)
             if (gameStates.get(id).currentHangmanSize >= 7) {
-                message += "> **Game ended**\n";
-                message += `> The word was: *${word}*`;
+                message += "**Game Ended**\n"
+                message += `The word was: *${word}*`;
                 userGames.delete(id);
                 gameStates.delete(id);
             } else {
                 gameStates.get(id).currentHangmanSize += 1;
             }
             interaction.reply({
-                content: message,   
+                embeds: [createEmbed(
+                    0xe82b2b,
+                    "Hangman",
+                    `
+                        ${message}
+                    `
+                )],  
                 flags: MessageFlags.Ephemeral
             });
         }
 
     } catch (error) {
         interaction.reply({
-            content: `
-                ${error}
-            `,
+            embeds: [createEmbed(
+                0x82b2b,
+                "ERROR",
+                `${error}`
+            )],
             flags: MessageFlags.Ephemeral
         });
     }

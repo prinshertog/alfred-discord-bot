@@ -10,10 +10,10 @@ export async function getAboutMeForUser(id: DiscordId) {
         }
         const member: Member = result;
         return `
-            > Member: **<@${member.Id}>**
-            > Street Cred: ${member.StreetCred}
-            > Access Level: ${member.AccessLevel}
-            > Lounge Time: ${await formatLoungeTime(member)}
+            Member: **<@${member.Id}>**
+            Street Cred: **${member.StreetCred}**
+            Access Level: **${member.AccessLevel}**
+            Lounge Time: ${await formatLoungeTime(member)}
         `;
     } catch (error) {
         throw new Error(`${error}`);
@@ -36,27 +36,27 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
     try {
         switch (leaderBoardType) {
             case "loungetime": {
-                let message = "**Lounge Time Leader Board**";
+                let message = "";
                 let memberData = await getTopLoungeTimeMembers(amount);
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]);
                     const user = client.users.fetch(member.Id);
                     message += `
-                        > **${i + 1}.** *${(await user).displayName}*
-                        > ${await formatLoungeTime(member)}
+                        **${i + 1}.** *${(await user).displayName}*
+                        ${await formatLoungeTime(member)}
                     `;
                 }
                 return message;
             }
             case "streetcred": {
-                let message = "**StreetCred Leader Board**";
+                let message = "";
                 let memberData = await getTopStreetCredMembers(amount);
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]); 
                     const user = client.users.fetch(member.Id);
                     message += `
-                        > **${i + 1}.** *${(await user).displayName}*
-                        > Cred: **${member.StreetCred}**
+                        **${i + 1}.** *${(await user).displayName}*
+                        Cred: **${member.StreetCred}**
                     `;
                 }
                 return message;
