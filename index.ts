@@ -1,13 +1,17 @@
+'use strict'
 import { loadCommands } from './lib/load_commands.js';
 import { DiscordId } from './lib/types.js';
-import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags } from 'discord.js';
+import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData } from 'discord.js';
 import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import { game } from './logic/hangmanLogic.js';
-import dotenv from 'dotenv';
 import { createEmbed } from './lib/embed.js';
+import { Color } from './data/global.js';
+import dotenv from 'dotenv';
 dotenv.config();
-const { TOKEN } = process.env;
+const { TOKEN, BOT_STATUS_ENV, BOT_STATUS_MSG } = process.env;
+
+let BOT_STATUS: PresenceStatusData = BOT_STATUS_ENV as PresenceStatusData;
 
 loadCommands();
 
@@ -24,9 +28,9 @@ const gameStates = new Map<DiscordId, {currentHangmanSize: number; word: string;
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
   client.user.setPresence({
-    status: "online",
+    status: BOT_STATUS,
     activities: [{
-      name: "Vengeance!",
+      name: BOT_STATUS_MSG,
       type: ActivityType.Custom,
     }]
   })
@@ -43,10 +47,11 @@ client.on(Events.InteractionCreate, async interaction => {
     switch(interaction.commandName) {
       case "aboutme":
         await interaction.reply({
-          embeds: [createEmbed(
-            0x0099FF, 
+          embeds: [await createEmbed(
+            Color.Blue, 
             "About me", 
-            `${await getAboutMeForUser(id)}`
+            `${await getAboutMeForUser(id)}`,
+            client
           )],
           flags: MessageFlags.Ephemeral
         });
@@ -54,26 +59,28 @@ client.on(Events.InteractionCreate, async interaction => {
       case "hangman":
         let letter: string = interaction.options.getString("letter");
         if (letter) letter = letter.toLowerCase();
-        await game(id, letter, interaction, userGames, gameStates);
+        await game(id, letter, interaction, userGames, gameStates, client);
         break;
       case "leaderboard":
         let amount = interaction.options.getInteger("entries");
         switch(interaction.options.getSubcommand()) {
           case "streetcred":
             interaction.reply({
-              embeds: [createEmbed(
-                0x0099FF,
+              embeds: [await createEmbed(
+                Color.Blue,
                 "Street Cred Leader Board",
-                await getLeaderBoard(amount, "streetcred", client)
+                await getLeaderBoard(amount, "streetcred", client),
+                client
               )]
             });
             break;
           case "loungetime":
             interaction.reply({
-              embeds: [createEmbed(
-                0x0099FF, 
+              embeds: [await createEmbed(
+                Color.Blue, 
                 "Lounge Time Leader Board", 
-                await getLeaderBoard(amount, "loungetime", client)
+                await getLeaderBoard(amount, "loungetime", client),
+                client
               )]
             });
             break;

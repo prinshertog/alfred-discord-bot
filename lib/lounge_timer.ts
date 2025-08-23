@@ -1,3 +1,4 @@
+'use strict'
 import { addLoungeTime } from '../database/members.js';
 import { DiscordId } from './types.js';
 export async function startTimer(userTimers, user, id: DiscordId) {

@@ -7,6 +7,8 @@ ENV CLIENT_ID=""
 ENV GUILD_ID=""
 ENV DB_NAME="bot-db"
 ENV CONN_STR=""
+ENV BOT_STATUS_MSG="Vengeance!"
+ENV BOT_STATUS="online"
 
 COPY data data
 COPY database database

@@ -1,5 +1,5 @@
 services:
-  void-bot:
+  bot:
     image: prinshertog/discord-alfred-bot
     environment:
       - CONN_STR=mongodb://user:pass@mongodb:27017
@@ -7,6 +7,8 @@ services:
       - CLIENT_ID=
       - GUILD_ID=
       - DB_NAME=bot-db
+      - BOT_STATUS_MSG="Vengeance!"
+      - BOT_STATUS="online"
     depends_on:
       - mongodb
   mongodb:
