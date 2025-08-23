@@ -1,3 +1,4 @@
+'use strict'
 import { Temporal } from '@js-temporal/polyfill';
 import { Member } from '../lib/types';
 export async function formatLoungeTime(member: Member) {

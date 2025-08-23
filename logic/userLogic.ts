@@ -1,3 +1,4 @@
+'use strict'
 import { DiscordId, Member } from '../lib/types';
 import { formatLoungeTime, toMember } from '../lib/format.js';
 import { getMemberInformation, createMember, getTopStreetCredMembers, getTopLoungeTimeMembers } from '../database/members.js';
@@ -9,14 +10,12 @@ export async function getAboutMeForUser(id: DiscordId) {
             return result;
         }
         const member: Member = result;
-        return `
-            Member: **<@${member.Id}>**
-            Street Cred: **${member.StreetCred}**
-            Access Level: **${member.AccessLevel}**
-            Lounge Time: ${await formatLoungeTime(member)}
-        `;
+        return `Member: **<@${member.Id}>**\n` +
+            `Street Cred: **${member.StreetCred}**\n` +
+            `Access Level: **${member.AccessLevel}**\n` +
+            `Lounge Time: ${await formatLoungeTime(member)}\n`;
     } catch (error) {
-        throw new Error(`${error}`);
+        throw new Error(error);
     }
 }
 
@@ -28,7 +27,7 @@ export async function registerIfNotRegistered(id: DiscordId) {
             console.log(`User ${id} registered!`);
         }
     } catch (error) {
-        throw new Error(`${error}`);
+        throw new Error(error);
     }
 }
 
@@ -41,10 +40,9 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]);
                     const user = client.users.fetch(member.Id);
-                    message += `
-                        **${i + 1}.** *${(await user).displayName}*
-                        ${await formatLoungeTime(member)}
-                    `;
+                    message += 
+                        `**${i + 1}.** *${(await user).displayName}*\n` +
+                        `${await formatLoungeTime(member)}\n`;
                 }
                 return message;
             }
@@ -54,15 +52,14 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]); 
                     const user = client.users.fetch(member.Id);
-                    message += `
-                        **${i + 1}.** *${(await user).displayName}*
-                        Cred: **${member.StreetCred}**
-                    `;
+                    message += 
+                        `**${i + 1}.** *${(await user).displayName}*\n` + 
+                        `Cred: **${member.StreetCred}**\n`;
                 }
                 return message;
             }
         }
     } catch (error) {
-        throw new Error(`${error}`);
+        throw new Error(error);
     }
 }

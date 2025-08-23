@@ -1,3 +1,4 @@
+'use strict'
 export type DiscordId = string;
 export type Member = {
     Id: DiscordId,

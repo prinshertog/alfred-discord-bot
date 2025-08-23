@@ -11,6 +11,7 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "start": "node --loader ts-node/esm index.ts"
+    "start": "node --loader ts-node/esm index.ts",
+    "lint": "eslint ."
   }
 }

@@ -1,3 +1,4 @@
+'use strict'
 import { REST, Routes } from 'discord.js';
 import commands from '../data/commands.json' with { type: 'json' };
 import dotenv from 'dotenv';

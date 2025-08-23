@@ -1,15 +1,18 @@
+'use strict'
 import { DiscordId } from "../lib/types";
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, Client, MessageFlags } from "discord.js";
 import { updateStreetCred } from "../database/members.js";
 import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
+import { Color } from "../data/global.js";
 
 export async function game(
     id: DiscordId, 
     letter: string, 
     interaction: ChatInputCommandInteraction, 
     userGames: Map<DiscordId, boolean>, 
-    gameStates: Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>
+    gameStates: Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>,
+    client: Client
 ) {
     try {
         let gameStarted = userGames.get(id);
@@ -26,22 +29,21 @@ export async function game(
             userGames.set(id, true); // Set the game to started for user.
             await startCleanupTimer(id, userGames, gameStates);
             interaction.reply({
-                embeds: [createEmbed(
-                    0x3bff3e,
-                    "Game started",
-                    `
-                        Please type your first letter with "/hangman (letter)".
-                        Language: **Nederlands**
-                    `
+                embeds: [await createEmbed(
+                    Color.Blue,
+                    "Game started\n",
+                    'Please type your first letter with "/hangman (letter)".\n' + 
+                    "Language: **Nederlands**",
+                    client
                 )],
                 flags: MessageFlags.Ephemeral
             });
             return;
         } else if (letter && letter.length > 1) {
-            throw new Error(`
-                    **Not a letter**
-                    Make sure you type a letter.
-                `);
+            throw new Error(
+                "**Not a letter**\n" + 
+                "Make sure you type a letter."
+            );
         }
         let word = gameStates.get(id).word;
         let guessedLetters = gameStates.get(id).guessedLetters;
@@ -54,12 +56,11 @@ export async function game(
                 wrongLetters
             );
             interaction.reply({
-                embeds: [createEmbed(
-                    0xe82b2b,
+                embeds: [await createEmbed(
+                    Color.Red,
                     "Hangman",
-                    `
-                        ${message}
-                    `
+                    message,
+                    client
                 )],
                 flags: MessageFlags.Ephemeral
             });
@@ -81,19 +82,17 @@ export async function game(
             if (wordEqualsGuessedLetters(word, guessedLetters)) {
                 userGames.delete(id);
                 gameStates.delete(id);
-                message += `
-                    You guessed the word! **+50 street cred**
-                    **Game Ended**
-                `
+                message += 
+                    "You guessed the word! **+50 street cred**\n" +
+                    "**Game Ended**";
                 updateStreetCred(id, 50);
             }
             interaction.reply({
-                embeds: [createEmbed(
-                    0x3bff3e,
+                embeds: [await createEmbed(
+                    Color.Green,
                     "Hangman",
-                    `
-                        ${message}
-                    `
+                    message,
+                    client
                 )],
                 flags: MessageFlags.Ephemeral
             });
@@ -106,7 +105,7 @@ export async function game(
             message += await draw(gameStates.get(id).currentHangmanSize);
             updateStreetCred(id, -10)
             if (gameStates.get(id).currentHangmanSize >= 7) {
-                message += "**Game Ended**\n"
+                message += "\n**Game Ended**\n"
                 message += `The word was: *${word}*`;
                 userGames.delete(id);
                 gameStates.delete(id);
@@ -114,12 +113,11 @@ export async function game(
                 gameStates.get(id).currentHangmanSize += 1;
             }
             interaction.reply({
-                embeds: [createEmbed(
-                    0xe82b2b,
+                embeds: [await createEmbed(
+                    Color.Red,
                     "Hangman",
-                    `
-                        ${message}
-                    `
+                    message,
+                    client
                 )],  
                 flags: MessageFlags.Ephemeral
             });
@@ -127,10 +125,11 @@ export async function game(
 
     } catch (error) {
         interaction.reply({
-            embeds: [createEmbed(
-                0x82b2b,
+            embeds: [await createEmbed(
+                Color.Red,
                 "ERROR",
-                `${error}`
+                error,
+                client
             )],
             flags: MessageFlags.Ephemeral
         });
