@@ -1,3 +1,4 @@
+'use strict'
 import { MongoClient } from 'mongodb'
 import { Member } from '../lib/types';
 import { DiscordId } from '../lib/types';

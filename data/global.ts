@@ -1,3 +1,4 @@
+'use strict'
 import { ColorResolvable } from "discord.js";
 
 export const Color = {
