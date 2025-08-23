@@ -41,7 +41,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
                     const member = toMember(memberData[i]);
                     const user = client.users.fetch(member.Id);
                     message += 
-                        `**${i + 1}.** *${(await user).displayName}*\n` +
+                        `\n**${i + 1}.** *${(await user).displayName}*\n` +
                         `${await formatLoungeTime(member)}\n`;
                 }
                 return message;
@@ -53,7 +53,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
                     const member = toMember(memberData[i]); 
                     const user = client.users.fetch(member.Id);
                     message += 
-                        `**${i + 1}.** *${(await user).displayName}*\n` + 
+                        `\n**${i + 1}.** *${(await user).displayName}*\n` + 
                         `Cred: **${member.StreetCred}**\n`;
                 }
                 return message;
