@@ -1,13 +1,14 @@
 'use strict'
 import { loadCommands } from './lib/load_commands.js';
-import { DiscordId } from './lib/types.js';
-import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData } from 'discord.js';
+import { DiscordId, GameStates, UserGames } from './lib/types.js';
+import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData, Interaction, VoiceBasedChannel, Guild } from 'discord.js';
 import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/lounge_timer.js';
 import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
+import { handleLonelyBot, handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
 dotenv.config();
 const { TOKEN, BOT_STATUS_ENV, BOT_STATUS_MSG } = process.env;
 
@@ -22,8 +23,10 @@ const client = new Client({ intents: [
 ]});
 
 const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
-const userGames: Map<DiscordId, boolean> = new Map();
-const gameStates = new Map<DiscordId, {currentHangmanSize: number; word: string; guessedLetters: string[], wrongLetters: string[]}>();
+const userGames: UserGames = new Map();
+const gameStates: GameStates = new Map();
+const lonelyTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
+const voiceChannelStates: Map<DiscordId, VoiceBasedChannel> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
@@ -93,21 +96,35 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 });
 
+client.on(Events.InteractionCreate, async interaction => {
+  await handleLonelyInteraction(interaction, client, voiceChannelStates);
+})
+
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  if (newState.member.user.bot) return; 
   const user = newState.member.user.username;
   const id: DiscordId = newState.member.id;
-
   if (!oldState.channel && newState.channel) {
     console.log(`${user} joined ${newState.channel.name}`);
-
+    voiceChannelStates.set(newState.member.id, newState.channel);
     await registerIfNotRegistered(id);
     await startTimer(userTimers, user, id);
+    await startLonelyTimer(newState, lonelyTimers, id);
+    await handleLonelyBot(newState.channel);
   } else if (oldState.channel && !newState.channel) {
     console.log(`${user} left ${oldState.channel.name}`);
-
     await stopTimer(userTimers, user, id);
+    await stopLonelyTimer(lonelyTimers, id);
+    if (oldState.channel.members && oldState.channel.members.size === 2) {
+      await startLonelyTimer(oldState, lonelyTimers, oldState.channel.members[0].id);
+    }
+    await handleLonelyBot(oldState.channel);
+    voiceChannelStates.delete(id);
   } else if (oldState.channelId !== newState.channelId) {
     console.log(`${user} switched from ${oldState.channel.name} to ${newState.channel.name}`);
+    voiceChannelStates.set(id, newState.channel)
+    await startLonelyTimer(newState, lonelyTimers, id);
+    await handleLonelyBot(newState.channel);
   }
 });
 
