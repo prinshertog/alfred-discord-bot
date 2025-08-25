@@ -69,9 +69,10 @@ export async function handleLonelyInteraction(
     client: Client, 
     voiceChannelStates: Map<DiscordId, VoiceBasedChannel>
 ) {
-    let message = "";
     if (!interaction.isButton()) return;
     if (interaction.user.bot) return;
+    if (!voiceChannelStates.get(interaction.user.id)) return;
+    let message = "";
     if (interaction.customId === 'ja_button') {
         message = "TOP! Ik kom er zo aan! :-)";
         const channel = voiceChannelStates.get(interaction.user.id);
