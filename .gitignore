@@ -1,3 +1,5 @@
 /node_modules
 .env
 /dockerdata
+/music
+/music2

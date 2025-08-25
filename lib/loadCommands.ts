@@ -2,8 +2,10 @@
 import { REST, Routes } from 'discord.js';
 import commands from '../data/commands.json' with { type: 'json' };
 import dotenv from 'dotenv';
+import { errorMessage, logMessage } from './log.js';
 dotenv.config();
 const { TOKEN, CLIENT_ID, GUILD_ID } = process.env;
+const componentName = "loadCommands";
 
 export async function loadCommands() {
     if (!TOKEN) {
@@ -18,15 +20,14 @@ export async function loadCommands() {
 
     const rest = new REST({ version: '10' }).setToken(TOKEN);
     try {
-        console.log('Started refreshing application (/) commands.');
-
+        logMessage('Started refreshing application (/) commands.', componentName);
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), 
         { 
             body: commands
         }
     );
-    console.log('Successfully reloaded application (/) commands.');
+    logMessage('Successfully reloaded application (/) commands.', componentName);
     } catch (error) {
-        console.error(error);
+        errorMessage(error, componentName);
     }
 }
