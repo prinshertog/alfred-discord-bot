@@ -2,19 +2,30 @@
 
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, getVoiceConnection, VoiceConnection } from "@discordjs/voice"
 import { Events, VoiceState } from "discord.js";
+import fs from 'fs';
+
+const musicFolder = "./music/";
 
 export async function playMusic(connection: VoiceConnection) {
+    let currentSong = 0;
+    const files = fs.readdirSync(musicFolder);
     const player = createAudioPlayer();
-    const resource = createAudioResource("./music/jazz.mp3");
+    let resource = createAudioResource(musicFolder + files[0]);
     player.play(resource);
     connection.subscribe(player);
 
     player.on(AudioPlayerStatus.Idle, () => {
-      connection.destroy();
+        if (currentSong <= files.length) {
+            currentSong += 1;
+            let resource = createAudioResource(musicFolder + files[currentSong]);
+            player.play(resource);
+            return;
+        }
+        connection.destroy();
     });
 
     player.on(Events.Error, (error) => {
-      console.error(error);
+        console.error(error);
     });
 }
 
