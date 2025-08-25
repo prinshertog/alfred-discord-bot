@@ -23,6 +23,7 @@ export async function startLonelyTimer(
         && !lonelyTimers.get(id)
         && lonelyTimers.size === 0
     ) {
+        logMessage(`Started lonely timer for user ${id}`, componentName);
         lonelyTimers.set(id, setTimeout(async () => {
             const jaButton = new ButtonBuilder()
                 .setCustomId('ja_button')
@@ -48,11 +49,14 @@ export async function startLonelyTimer(
     }
 }
 
-export async function stopLonelyTimer(
+export function stopLonelyTimer(
     lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
     id: DiscordId
 ) {
+    const timeout: NodeJS.Timeout = lonelyTimers.get(id);
+    if (timeout) timeout.close();
     lonelyTimers.delete(id);
+    logMessage(`Deleted lonely timer for user ${id}`, componentName);
 }
 
 async function deleteDmMessages(client: Client, user: User) {
