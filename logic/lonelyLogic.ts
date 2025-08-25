@@ -2,12 +2,17 @@
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Interaction, User, VoiceBasedChannel, VoiceState } from "discord.js";
 import { DiscordId } from "../lib/types.js";
-import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
+import { joinVoiceChannel } from "@discordjs/voice";
 import { playMusic } from "./voiceLogic.js";
+import dotenv from 'dotenv';
+import { logMessage } from "../lib/log.js";
+dotenv.config();
 
-const lonelyTime = 5000; // Time that the bot waits before asking to join.
+const { LONELY_TIME } = process.env // Time that the bot waits before asking to join.
+const lonelyTime = parseInt(LONELY_TIME, 10);
 const deleteMessageTime = 10000; // Time that the bot waits before deleting DMs.
-const timeoutBeforeJoining = 5000; // Time that it takes to join lounge after user replied yes.
+const timeoutBeforeJoining = 3000; // Time that it takes to join lounge after user replied yes.
+const componentName = "lonelyLogic"
 
 export async function startLonelyTimer(
     state: VoiceState, 
@@ -31,7 +36,7 @@ export async function startLonelyTimer(
             const buttons = new ActionRowBuilder()
                                 .addComponents(jaButton, neeButton);
 
-            console.log("Sending message to lonely user.")
+            logMessage(`Sending message to lonely user. ${id}`, componentName);
             await state.member.send({ 
                 content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
             });
@@ -56,9 +61,14 @@ async function deleteDmMessages(client: Client, user: User) {
     for (let message of botMessages.values()) {
         message.delete();
     }
+    logMessage(`Deleted DM messages with user: ${user.displayName}`, componentName);
 }
 
-export async function handleLonelyInteraction(interaction: Interaction, client: Client, voiceChannelStates: Map<DiscordId, VoiceBasedChannel>) {
+export async function handleLonelyInteraction(
+    interaction: Interaction, 
+    client: Client, 
+    voiceChannelStates: Map<DiscordId, VoiceBasedChannel>
+) {
     let message = "";
     if (!interaction.isButton()) return;
     if (interaction.user.bot) return;
@@ -77,6 +87,7 @@ export async function handleLonelyInteraction(interaction: Interaction, client: 
                 await playMusic(connection);
             }
         }, timeoutBeforeJoining);
+        logMessage("Joined lonely user in lounge.", componentName);
     } else if (interaction.customId === 'nee_button') {
         message = "Ok dan niet :-(";
     }

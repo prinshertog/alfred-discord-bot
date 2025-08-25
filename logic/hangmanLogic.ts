@@ -1,10 +1,13 @@
 'use strict'
 import { DiscordId, GameStates, UserGames } from "../lib/types.js";
-import { ChatInputCommandInteraction, Client, CommandInteraction, Embed, EmbedBuilder, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, Client, EmbedBuilder, MessageFlags } from "discord.js";
 import { updateStreetCred } from "../database/members.js";
 import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
 import { Color } from "../data/global.js";
+import { errorMessage } from "../lib/log.js";
+
+const componentName = "hangmanLogic";
 
 export async function game(
     id: DiscordId, 
@@ -72,7 +75,7 @@ export async function game(
         }
 
     } catch (error) {
-        console.error(error);
+        errorMessage(error, componentName);
     }
 }
 

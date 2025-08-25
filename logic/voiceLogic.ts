@@ -3,29 +3,37 @@
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, getVoiceConnection, VoiceConnection } from "@discordjs/voice"
 import { Events, VoiceState } from "discord.js";
 import fs from 'fs';
+import dotenv from 'dotenv';
+import { errorMessage, logMessage } from "../lib/log.js";
+dotenv.config();
+const { MUSIC_FOLDER } = process.env;
 
-const musicFolder = "./music/";
+const componentName = "voiceLogic";
 
 export async function playMusic(connection: VoiceConnection) {
     let currentSong = 0;
-    const files = fs.readdirSync(musicFolder);
+    const files = fs.readdirSync(MUSIC_FOLDER);
+    if (!files) {
+        fs.mkdirSync(MUSIC_FOLDER);
+    }
     const player = createAudioPlayer();
-    let resource = createAudioResource(musicFolder + files[0]);
+    let resource = createAudioResource(MUSIC_FOLDER + "/" + files[0]);
     player.play(resource);
     connection.subscribe(player);
 
     player.on(AudioPlayerStatus.Idle, () => {
         if (currentSong <= files.length) {
             currentSong += 1;
-            let resource = createAudioResource(musicFolder + files[currentSong]);
+            let resource = createAudioResource(MUSIC_FOLDER + "/" + files[currentSong]);
             player.play(resource);
+            logMessage(`Playing next song: ${files[currentSong]}`, componentName);
             return;
         }
         connection.destroy();
     });
 
     player.on(Events.Error, (error) => {
-        console.error(error);
+        errorMessage(error.message, componentName);
     });
 }
 

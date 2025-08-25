@@ -1,17 +1,20 @@
 'use strict'
-import { loadCommands } from './lib/load_commands.js';
+import { loadCommands } from './lib/loadCommands.js';
 import { DiscordId, GameStates, UserGames } from './lib/types.js';
-import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData, Interaction, VoiceBasedChannel, Guild } from 'discord.js';
+import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData, VoiceBasedChannel } from 'discord.js';
 import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
-import { startTimer, stopTimer } from './lib/lounge_timer.js';
+import { startTimer, stopTimer } from './lib/loungeTimer.js';
 import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
 import { handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
 import { botLeaveWhenEmpty } from './logic/voiceLogic.js';
+import { logMessage } from './lib/log.js';
 dotenv.config();
+
 const { TOKEN, BOT_STATUS_ENV, BOT_STATUS_MSG } = process.env;
+const componentName = "main";
 
 let BOT_STATUS: PresenceStatusData = BOT_STATUS_ENV as PresenceStatusData;
 
@@ -30,7 +33,7 @@ const lonelyTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const voiceChannelStates: Map<DiscordId, VoiceBasedChannel> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
-  console.log(`Logged in as ${readyClient.user.tag}!`);
+  logMessage(`Logged in as ${readyClient.user.tag}!`, componentName);
   client.user.setPresence({
     status: BOT_STATUS,
     activities: [{
@@ -107,7 +110,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   const userName = newState.member.user.username;
   const id: DiscordId = newState.member.id;
   if (!oldState.channel && newState.channel) {
-    console.log(`${userName} joined ${newState.channel.name}`);
+    logMessage(`${userName} joined ${newState.channel.name}`, componentName);
     voiceChannelStates.set(newState.member.id, newState.channel);
 
     await registerIfNotRegistered(id);
@@ -115,14 +118,14 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
     await startLonelyTimer(newState, lonelyTimers, id);
   } else if (oldState.channel && !newState.channel) {
-    console.log(`${userName} left ${oldState.channel.name}`);
+    logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
     await stopLonelyTimer(lonelyTimers, id);
     await botLeaveWhenEmpty(oldState);
 
     voiceChannelStates.delete(id);
   } else if (oldState.channelId !== newState.channelId) {
-    console.log(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`);
+    logMessage(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`, componentName);
 
     voiceChannelStates.set(id, newState.channel);
     await startLonelyTimer(newState, lonelyTimers, id);

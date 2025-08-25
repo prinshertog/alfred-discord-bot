@@ -1,6 +1,9 @@
 services:
   bot:
-    image: prinshertog/discord-alfred-bot
+    #image: prinshertog/discord-alfred-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - CONN_STR=mongodb://user:pass@mongodb:27017
       - TOKEN=
@@ -9,6 +12,10 @@ services:
       - DB_NAME=bot-db
       - BOT_STATUS_MSG="Vengeance!"
       - BOT_STATUS="online"
+      - MUSIC_FOLDER=/app/music
+      - LONELY_TIME=60000
+    volumes:
+      - ./music:/app/music
     depends_on:
       - mongodb
   mongodb:

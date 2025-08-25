@@ -1,6 +1,9 @@
 'use strict'
 import { addLoungeTime } from '../database/members.js';
+import { logMessage } from './log.js';
 import { DiscordId } from './types.js';
+const componentName = "loungeTimer";
+
 export async function startTimer(userTimers, user, id: DiscordId) {
     const usedTimer = userTimers.get(id);
     if (!usedTimer) {
@@ -8,7 +11,7 @@ export async function startTimer(userTimers, user, id: DiscordId) {
         addLoungeTime(id, 5);
       }, 5000);
       userTimers.set(id, timer);
-      console.log(`Started timer for user ${user}.`);
+      logMessage(`Started timer for user ${user}.`, componentName);
     }
 }
 
@@ -16,5 +19,5 @@ export async function stopTimer(userTimers, user, id: DiscordId) {
     const timer = userTimers.get(id);
     clearInterval(timer);
     userTimers.delete(id);
-    console.log(`Stopped timer for user ${user}.`);
+    logMessage(`Stopped timer for user ${user}.`, componentName);
 }

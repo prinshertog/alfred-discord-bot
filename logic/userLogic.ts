@@ -3,6 +3,10 @@ import { DiscordId, Member } from '../lib/types';
 import { formatLoungeTime, toMember } from '../lib/format.js';
 import { getMemberInformation, createMember, getTopStreetCredMembers, getTopLoungeTimeMembers } from '../database/members.js';
 import { Client } from 'discord.js';
+import { logMessage } from '../lib/log.js';
+
+const componentName = "userLogic";
+
 export async function getAboutMeForUser(id: DiscordId) {
     try {
         const result = await getMemberInformation(id);
@@ -24,7 +28,7 @@ export async function registerIfNotRegistered(id: DiscordId) {
         const result = await getMemberInformation(id);
         if (result instanceof Error) {
             await createMember(id);
-            console.log(`User ${id} registered!`);
+            logMessage(`User ${id} registered!`, componentName);
         }
     } catch (error) {
         throw new Error(error);
