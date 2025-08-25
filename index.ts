@@ -102,7 +102,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.InteractionCreate, async interaction => {
   await handleLonelyInteraction(interaction, client, voiceChannelStates);
-  await stopLonelyTimer(lonelyTimers, interaction.user.id);
+  stopLonelyTimer(lonelyTimers, interaction.user.id);
 })
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
@@ -120,7 +120,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   } else if (oldState.channel && !newState.channel) {
     logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
-    await stopLonelyTimer(lonelyTimers, id);
+    stopLonelyTimer(lonelyTimers, id);
     await botLeaveWhenEmpty(oldState);
 
     voiceChannelStates.delete(id);
