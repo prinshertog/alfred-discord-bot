@@ -8,7 +8,8 @@ import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
-import { handleLonelyBot, handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
+import { handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
+import { botLeaveWhenEmpty } from './logic/voiceLogic.js';
 dotenv.config();
 const { TOKEN, BOT_STATUS_ENV, BOT_STATUS_MSG } = process.env;
 
@@ -98,33 +99,34 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.InteractionCreate, async interaction => {
   await handleLonelyInteraction(interaction, client, voiceChannelStates);
+  await stopLonelyTimer(lonelyTimers, interaction.user.id);
 })
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   if (newState.member.user.bot) return; 
-  const user = newState.member.user.username;
+  const userName = newState.member.user.username;
   const id: DiscordId = newState.member.id;
   if (!oldState.channel && newState.channel) {
-    console.log(`${user} joined ${newState.channel.name}`);
+    console.log(`${userName} joined ${newState.channel.name}`);
     voiceChannelStates.set(newState.member.id, newState.channel);
+
     await registerIfNotRegistered(id);
-    await startTimer(userTimers, user, id);
+    await startTimer(userTimers, userName, id);
+
     await startLonelyTimer(newState, lonelyTimers, id);
-    await handleLonelyBot(newState.channel);
   } else if (oldState.channel && !newState.channel) {
-    console.log(`${user} left ${oldState.channel.name}`);
-    await stopTimer(userTimers, user, id);
+    console.log(`${userName} left ${oldState.channel.name}`);
+    await stopTimer(userTimers, userName, id);
     await stopLonelyTimer(lonelyTimers, id);
-    if (oldState.channel.members && oldState.channel.members.size === 2) {
-      await startLonelyTimer(oldState, lonelyTimers, oldState.channel.members[0].id);
-    }
-    await handleLonelyBot(oldState.channel);
+    await botLeaveWhenEmpty(oldState);
+
     voiceChannelStates.delete(id);
   } else if (oldState.channelId !== newState.channelId) {
-    console.log(`${user} switched from ${oldState.channel.name} to ${newState.channel.name}`);
-    voiceChannelStates.set(id, newState.channel)
+    console.log(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`);
+
+    voiceChannelStates.set(id, newState.channel);
     await startLonelyTimer(newState, lonelyTimers, id);
-    await handleLonelyBot(newState.channel);
+    await botLeaveWhenEmpty(oldState);
   }
 });
 
