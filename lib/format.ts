@@ -1,7 +1,12 @@
 'use strict'
 import { Temporal } from '@js-temporal/polyfill';
 import { Member } from '../lib/types';
+import { errorMessage } from './log';
+
+const componentName = "format";
+
 export async function formatLoungeTime(member: Member) {
+  try {
     const duration = Temporal.Duration.from({ seconds: member.LoungeTime });
     const formattedTime = duration.round({ largestUnit: "days" });
     const timeParts = [];
@@ -10,6 +15,9 @@ export async function formatLoungeTime(member: Member) {
     if (formattedTime.minutes) timeParts.push(`\`Minutes: ${formattedTime.minutes}\``);
     timeParts.push(`\`Seconds: ${formattedTime.seconds}\``); // always show seconds
     return timeParts.join(" ").toString();
+  } catch (error) {
+    errorMessage(error, componentName);
+  }
 }
 
 export function toMember(raw: any): Member {

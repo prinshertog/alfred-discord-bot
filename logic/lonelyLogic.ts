@@ -5,7 +5,7 @@ import { DiscordId } from "../lib/types.js";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { playMusic } from "./voiceLogic.js";
 import dotenv from 'dotenv';
-import { logMessage } from "../lib/log.js";
+import { errorMessage, logMessage } from "../lib/log.js";
 dotenv.config();
 
 const { LONELY_TIME } = process.env // Time that the bot waits before asking to join.
@@ -19,7 +19,8 @@ export async function startLonelyTimer(
     lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
     id: DiscordId
 ) {
-    if (state.channel.members.size === 1 
+    try {
+        if (state.channel.members.size === 1 
         && !lonelyTimers.get(id)
         && lonelyTimers.size === 0
     ) {
@@ -46,6 +47,9 @@ export async function startLonelyTimer(
                 components: [buttons.toJSON()]
             });
         }, lonelyTime));
+        }
+    } catch (error) {
+        errorMessage(error, componentName);
     }
 }
 
@@ -53,19 +57,27 @@ export function stopLonelyTimer(
     lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
     id: DiscordId
 ) {
-    const timeout: NodeJS.Timeout = lonelyTimers.get(id);
-    if (timeout) timeout.close();
-    lonelyTimers.delete(id);
-    logMessage(`Deleted lonely timer for user ${id}`, componentName);
+    try {
+        const timeout: NodeJS.Timeout = lonelyTimers.get(id);
+        if (timeout) timeout.close();
+        lonelyTimers.delete(id);
+        logMessage(`Deleted lonely timer for user ${id}`, componentName);
+    } catch (error) {
+        errorMessage(error, componentName);
+    }
 }
 
 async function deleteDmMessages(client: Client, user: User) {
-    const messages = await user.dmChannel.messages.fetch({ limit: 100});
-    const botMessages = messages.filter(msg => msg.author.id === client.user.id);
-    for (let message of botMessages.values()) {
-        message.delete();
+    try {
+        const messages = await user.dmChannel.messages.fetch({ limit: 100});
+        const botMessages = messages.filter(msg => msg.author.id === client.user.id);
+        for (let message of botMessages.values()) {
+            message.delete();
+        }
+        logMessage(`Deleted DM messages with user: ${user.displayName}`, componentName);
+    } catch (error) {
+        errorMessage(error, componentName);
     }
-    logMessage(`Deleted DM messages with user: ${user.displayName}`, componentName);
 }
 
 export async function handleLonelyInteraction(
@@ -73,34 +85,38 @@ export async function handleLonelyInteraction(
     client: Client, 
     voiceChannelStates: Map<DiscordId, VoiceBasedChannel>
 ) {
-    if (!interaction.isButton()) return;
-    if (interaction.user.bot) return;
-    if (!voiceChannelStates.get(interaction.user.id)) return;
-    let message = "";
-    if (interaction.customId === 'ja_button') {
-        message = "TOP! Ik kom er zo aan! :-)";
-        const channel = voiceChannelStates.get(interaction.user.id);
+    try {
+        if (!interaction.isButton()) return;
+        if (interaction.user.bot) return;
+        if (!voiceChannelStates.get(interaction.user.id)) return;
+        let message = "";
+        if (interaction.customId === 'ja_button') {
+            message = "TOP! Ik kom er zo aan! :-)";
+            const channel = voiceChannelStates.get(interaction.user.id);
+            setTimeout(async () => {
+                if (channel.members.has(interaction.user.id)) {
+                    const connection = joinVoiceChannel({
+                        channelId: channel.id,
+                        guildId: channel.guild.id,
+                        adapterCreator: channel.guild.voiceAdapterCreator,
+                        selfDeaf: false,
+                        selfMute: false
+                    });
+                    await playMusic(connection);
+                }
+            }, timeoutBeforeJoining);
+            logMessage("Joined lonely user in lounge.", componentName);
+        } else if (interaction.customId === 'nee_button') {
+            message = "Ok dan niet :-(";
+        }
+        interaction.update({
+            components: []
+        });
+        interaction.user.dmChannel.send(message);
         setTimeout(async () => {
-            if (channel.members.has(interaction.user.id)) {
-                 const connection = joinVoiceChannel({
-                    channelId: channel.id,
-                    guildId: channel.guild.id,
-                    adapterCreator: channel.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                    selfMute: false
-                });
-                await playMusic(connection);
-            }
-        }, timeoutBeforeJoining);
-        logMessage("Joined lonely user in lounge.", componentName);
-    } else if (interaction.customId === 'nee_button') {
-        message = "Ok dan niet :-(";
+            deleteDmMessages(client, interaction.user);
+        }, deleteMessageTime);  
+    } catch (error) {
+        errorMessage(error, componentName);
     }
-    interaction.update({
-        components: []
-    });
-    interaction.user.dmChannel.send(message);
-    setTimeout(async () => {
-        deleteDmMessages(client, interaction.user);
-    }, deleteMessageTime)
 }
