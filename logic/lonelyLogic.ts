@@ -20,37 +20,40 @@ export async function startLonelyTimer(
     id: DiscordId
 ) {
     try {
-        if (state.channel.members.size === 1 
-        && !lonelyTimers.get(id)
-        && lonelyTimers.size === 0
-    ) {
+        const memberCount = state.channel.members.size;
+        if (
+            memberCount === 1 
+            && !lonelyTimers.get(id)
+            && lonelyTimers.size === 0
+        ){
+            logMessage(`Started lonely timer for user ${id}`, componentName);
+            lonelyTimers.set(id, setTimeout(async () => {
+                if (memberCount === 1) { 	
+                    const jaButton = new ButtonBuilder()
+                        .setCustomId('ja_button')
+                        .setLabel('Ja')
+                        .setStyle(ButtonStyle.Primary);
+                        const neeButton = new ButtonBuilder()
+                        .setCustomId('nee_button')
+                        .setLabel('Nee')
+                        .setStyle(ButtonStyle.Primary);
+                    const buttons = new ActionRowBuilder()
+                        .addComponents(jaButton, neeButton);
 
-        logMessage(`Started lonely timer for user ${id}`, componentName);
-        lonelyTimers.set(id, setTimeout(async () => {
-		if (state.channel.members.size === 1) { 	
-			const jaButton = new ButtonBuilder()
-				.setCustomId('ja_button')
-				.setLabel('Ja')
-				.setStyle(ButtonStyle.Primary);
-		    	const neeButton = new ButtonBuilder()
-				.setCustomId('nee_button')
-				.setLabel('Nee')
-				.setStyle(ButtonStyle.Primary);
-
-		    const buttons = new ActionRowBuilder()
-					.addComponents(jaButton, neeButton);
-
-		    logMessage(`Sending message to lonely user. ${id}`, componentName);
-		    await state.member.send({ 
-			content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
-		    });
-		    await state.member.send({ 
-			content: "Zou je willen dat ik erbij" 
-				+ "kom zitten en wat muziek afspeel?\n" 						+ "Dan ben je niet zo alleen :)",
-			components: [buttons.toJSON()]
-		    });
-		}
-	    }, lonelyTime));
+                    logMessage(`Sending message to lonely user. ${id}`, componentName);
+                    await state.member.send({ 
+                    content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
+                    });
+                    await state.member.send({ 
+                    content: "Zou je willen dat ik erbij" 
+                        + "kom zitten en wat muziek afspeel?\n" 						
+                        + "Dan ben je niet zo alleen :)",
+                    components: [buttons.toJSON()]
+                    });
+                } else {
+                    logMessage("Lonely message cancelled because user was not alone.", componentName);
+                }
+            }, lonelyTime));
         }
     } catch (error) {
         errorMessage(error, componentName);
