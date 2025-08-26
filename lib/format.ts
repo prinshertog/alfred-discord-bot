@@ -1,7 +1,7 @@
 'use strict'
 import { Temporal } from '@js-temporal/polyfill';
 import { Member } from '../lib/types';
-import { errorMessage } from './log';
+import { errorMessage } from './log.js';
 
 const componentName = "format";
 
