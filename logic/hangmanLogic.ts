@@ -89,7 +89,8 @@ async function runGame(
     userGames: UserGames, 
     gameStates: GameStates
 ) : Promise<EmbedBuilder> {
-    if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) {
+    try {
+        if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) {
         let message = returnWithLetters(
             "**You already guessed that letter!**\n", 
             guessedLetters,
@@ -101,56 +102,59 @@ async function runGame(
                 message,
                 client
             );
-    } else {
-        await addLetterToGuessedLetters(word, guessedLetters, letter);
-        if (!wrongLetters.includes(letter) && !guessedLetters.includes(letter)) {
-            wrongLetters.push(letter);
-        }
-    }
-    
-    if (isValidLetter(letter, word)) {
-        let message = returnWithLetters(
-            "That was a valid letter! **+20 street cred.**\n", 
-            guessedLetters,
-            wrongLetters
-        );
-        updateStreetCred(id, 20);
-        if (wordEqualsGuessedLetters(word, guessedLetters)) {
-            userGames.delete(id);
-            gameStates.delete(id);
-            message += 
-                "You guessed the word! **+50 street cred**\n" +
-                "**Game Ended**";
-            updateStreetCred(id, 50);
-        }
-        return await createEmbed(
-                Color.Green,
-                "Hangman",
-                message,
-                client
-            );
-    } else {
-        let message = returnWithLetters(
-            "That letter is not correct! **Womp Womp** -10 street cred\n", 
-            guessedLetters,
-            wrongLetters
-        );
-        message += await draw(gameStates.get(id).currentHangmanSize);
-        updateStreetCred(id, -10)
-        if (gameStates.get(id).currentHangmanSize >= 7) {
-            message += "\n**Game Ended**\n"
-            message += `The word was: *${word}*`;
-            userGames.delete(id);
-            gameStates.delete(id);
         } else {
-            gameStates.get(id).currentHangmanSize += 1;
+            await addLetterToGuessedLetters(word, guessedLetters, letter);
+            if (!wrongLetters.includes(letter) && !guessedLetters.includes(letter)) {
+                wrongLetters.push(letter);
+            }
         }
-        return await createEmbed(
-                Color.Red,
-                "Hangman",
-                message,
-                client
+        
+        if (isValidLetter(letter, word)) {
+            let message = returnWithLetters(
+                "That was a valid letter! **+20 street cred.**\n", 
+                guessedLetters,
+                wrongLetters
             );
+            updateStreetCred(id, 20);
+            if (wordEqualsGuessedLetters(word, guessedLetters)) {
+                userGames.delete(id);
+                gameStates.delete(id);
+                message += 
+                    "You guessed the word! **+50 street cred**\n" +
+                    "**Game Ended**";
+                updateStreetCred(id, 50);
+            }
+            return await createEmbed(
+                    Color.Green,
+                    "Hangman",
+                    message,
+                    client
+                );
+        } else {
+            let message = returnWithLetters(
+                "That letter is not correct! **Womp Womp** -10 street cred\n", 
+                guessedLetters,
+                wrongLetters
+            );
+            message += await draw(gameStates.get(id).currentHangmanSize);
+            updateStreetCred(id, -10)
+            if (gameStates.get(id).currentHangmanSize >= 7) {
+                message += "\n**Game Ended**\n"
+                message += `The word was: *${word}*`;
+                userGames.delete(id);
+                gameStates.delete(id);
+            } else {
+                gameStates.get(id).currentHangmanSize += 1;
+            }
+            return await createEmbed(
+                    Color.Red,
+                    "Hangman",
+                    message,
+                    client
+                );
+        }
+    } catch (error) {
+        errorMessage(error, componentName);
     }
 }
 
@@ -175,9 +179,9 @@ function wordEqualsGuessedLetters(
     guessedLetters: string[]
  ) : boolean {
     for (let i = 0; i < word.length; i++) {
-        if (word[i] != guessedLetters[i]) {
-            return false;
-        }
+    if (word[i] != guessedLetters[i]) {
+        return false;
+    }
     }
     return true;
 }

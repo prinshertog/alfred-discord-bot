@@ -8,7 +8,7 @@ import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
-import { handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
+import { checkForLonelyTimers, handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
 import { botLeaveWhenEmpty } from './logic/voiceLogic.js';
 import { logMessage } from './lib/log.js';
 dotenv.config();
@@ -115,8 +115,9 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
     await registerIfNotRegistered(id);
     await startTimer(userTimers, userName, id);
-
     await startLonelyTimer(newState, lonelyTimers, id);
+    await checkForLonelyTimers(newState, lonelyTimers, id);
+
   } else if (oldState.channel && !newState.channel) {
     logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
