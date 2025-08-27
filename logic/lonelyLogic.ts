@@ -14,6 +14,22 @@ const deleteMessageTime = 10000; // Time that the bot waits before deleting DMs.
 const timeoutBeforeJoining = 3000; // Time that it takes to join lounge after user replied yes.
 const componentName = "lonelyLogic"
 
+export async function checkForLonelyTimers(
+    state: VoiceState, 
+    lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
+    id: DiscordId
+) {
+    for (let member of state.channel.members) {
+        console.log(member[0]);
+        if (lonelyTimers.has(member[0])) {
+            if (member[0] == id) return;
+            let timer = lonelyTimers.get(member[0]);
+            timer.close();
+            lonelyTimers.delete(member[0]);
+        }
+    }
+}
+
 export async function startLonelyTimer(
     state: VoiceState, 
     lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
@@ -28,31 +44,27 @@ export async function startLonelyTimer(
         ){
             logMessage(`Started lonely timer for user ${id}`, componentName);
             lonelyTimers.set(id, setTimeout(async () => {
-                if (memberCount === 1) { 	
-                    const jaButton = new ButtonBuilder()
-                        .setCustomId('ja_button')
-                        .setLabel('Ja')
-                        .setStyle(ButtonStyle.Primary);
-                        const neeButton = new ButtonBuilder()
-                        .setCustomId('nee_button')
-                        .setLabel('Nee')
-                        .setStyle(ButtonStyle.Primary);
-                    const buttons = new ActionRowBuilder()
-                        .addComponents(jaButton, neeButton);
+                const jaButton = new ButtonBuilder()
+                    .setCustomId('ja_button')
+                    .setLabel('Ja')
+                    .setStyle(ButtonStyle.Primary);
+                    const neeButton = new ButtonBuilder()
+                    .setCustomId('nee_button')
+                    .setLabel('Nee')
+                    .setStyle(ButtonStyle.Primary);
+                const buttons = new ActionRowBuilder()
+                    .addComponents(jaButton, neeButton);
 
-                    logMessage(`Sending message to lonely user. ${id}`, componentName);
-                    await state.member.send({ 
-                    content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
-                    });
-                    await state.member.send({ 
-                    content: "Zou je willen dat ik erbij" 
-                        + "kom zitten en wat muziek afspeel?\n" 						
-                        + "Dan ben je niet zo alleen :)",
-                    components: [buttons.toJSON()]
-                    });
-                } else {
-                    logMessage("Lonely message cancelled because user was not alone.", componentName);
-                }
+                logMessage(`Sending message to lonely user. ${id}`, componentName);
+                await state.member.send({ 
+                content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
+                });
+                await state.member.send({ 
+                content: "Zou je willen dat ik erbij" 
+                    + "kom zitten en wat muziek afspeel?\n" 						
+                    + "Dan ben je niet zo alleen :)",
+                components: [buttons.toJSON()]
+                });
             }, lonelyTime));
         }
     } catch (error) {
@@ -79,6 +91,7 @@ async function deleteDmMessages(client: Client, user: User) {
         const messages = await user.dmChannel.messages.fetch({ limit: 100});
         const botMessages = messages.filter(msg => msg.author.id === client.user.id);
         for (let message of botMessages.values()) {
+            if (!message) return;
             message.delete();
         }
         logMessage(`Deleted DM messages with user: ${user.displayName}`, componentName);
