@@ -31,6 +31,7 @@ const userGames: UserGames = new Map();
 const gameStates: GameStates = new Map();
 const lonelyTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const voiceChannelStates: Map<DiscordId, VoiceBasedChannel> = new Map();
+const lonelyTimerTimeOuts: Map<DiscordId, NodeJS.Timeout> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
   logMessage(`Logged in as ${readyClient.user.tag}!`, componentName);
@@ -115,7 +116,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
     await registerIfNotRegistered(id);
     await startTimer(userTimers, userName, id);
-    await startLonelyTimer(newState, lonelyTimers, id);
+    await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
     await checkForLonelyTimers(newState, lonelyTimers, id);
 
   } else if (oldState.channel && !newState.channel) {
@@ -129,7 +130,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     logMessage(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`, componentName);
 
     voiceChannelStates.set(id, newState.channel);
-    await startLonelyTimer(newState, lonelyTimers, id);
+    await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
     await botLeaveWhenEmpty(oldState);
   }
 });

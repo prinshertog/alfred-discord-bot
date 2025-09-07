@@ -12,6 +12,7 @@ const { LONELY_TIME } = process.env // Time that the bot waits before asking to 
 const lonelyTime = parseInt(LONELY_TIME, 10);
 const deleteMessageTime = 10000; // Time that the bot waits before deleting DMs.
 const timeoutBeforeJoining = 3000; // Time that it takes to join lounge after user replied yes.
+const messageTimeout = 60000;
 const componentName = "lonelyLogic"
 
 export async function checkForLonelyTimers(
@@ -20,7 +21,6 @@ export async function checkForLonelyTimers(
     id: DiscordId
 ) {
     for (let member of state.channel.members) {
-        console.log(member[0]);
         if (lonelyTimers.has(member[0])) {
             if (member[0] == id) return;
             let timer = lonelyTimers.get(member[0]);
@@ -33,7 +33,10 @@ export async function checkForLonelyTimers(
 export async function startLonelyTimer(
     state: VoiceState, 
     lonelyTimers: Map<DiscordId, NodeJS.Timeout>,
-    id: DiscordId
+    id: DiscordId,
+    lonelyTimerTimeOuts: Map<DiscordId, NodeJS.Timeout>,
+    client: Client,
+    user: User
 ) {
     try {
         const memberCount = state.channel.members.size;
@@ -48,7 +51,7 @@ export async function startLonelyTimer(
                     .setCustomId('ja_button')
                     .setLabel('Ja')
                     .setStyle(ButtonStyle.Primary);
-                    const neeButton = new ButtonBuilder()
+                const neeButton = new ButtonBuilder()
                     .setCustomId('nee_button')
                     .setLabel('Nee')
                     .setStyle(ButtonStyle.Primary);
@@ -57,14 +60,17 @@ export async function startLonelyTimer(
 
                 logMessage(`Sending message to lonely user. ${id}`, componentName);
                 await state.member.send({ 
-                content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
+                    content: `Hey ${state.member.displayName} ben je lonely in de lounge?`
                 });
                 await state.member.send({ 
-                content: "Zou je willen dat ik erbij" 
-                    + "kom zitten en wat muziek afspeel?\n" 						
-                    + "Dan ben je niet zo alleen :)",
-                components: [buttons.toJSON()]
+                    content: "Zou je willen dat ik erbij" 
+                        + "kom zitten en wat muziek afspeel?\n" 						
+                        + "Dan ben je niet zo alleen :)",
+                    components: [buttons.toJSON()]
                 });
+                lonelyTimerTimeOuts.set(id, setTimeout(async () => {
+                    await deleteDmMessages(client, user);
+                }, messageTimeout))
             }, lonelyTime));
         }
     } catch (error) {
