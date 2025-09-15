@@ -70,7 +70,8 @@ client.on(Events.InteractionCreate, async interaction => {
         await game(id, letter, interaction, userGames, gameStates, client);
         break;
       case "leaderboard":
-        let amount = interaction.options.getInteger("entries");
+        let value = interaction.options.getInteger("entries");
+        let amount = value ? value : 5;
         switch(interaction.options.getSubcommand()) {
           case "streetcred":
             interaction.reply({
