@@ -27,7 +27,7 @@
                         "type": 4,
                         "name": "entries",
                         "description": "Amount of entries to be shown.",
-                        "required": true
+                        "required": false
                     }
                 ]
             },
@@ -39,7 +39,7 @@
                         "type": 4,
                         "name": "entries",
                         "description": "Amount of entries to be shown.",
-                        "required": true
+                        "required": false
                     }
                 ]
             }
