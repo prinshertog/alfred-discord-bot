@@ -113,26 +113,26 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   const id: DiscordId = newState.member.id;
   if (!oldState.channel && newState.channel) {
     logMessage(`${userName} joined ${newState.channel.name}`, componentName);
-    voiceChannelStates.set(newState.member.id, newState.channel);
+    //voiceChannelStates.set(newState.member.id, newState.channel);
 
     await registerIfNotRegistered(id);
     await startTimer(userTimers, userName, id);
-    await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
-    await checkForLonelyTimers(newState, lonelyTimers, id);
+    //await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
+    //await checkForLonelyTimers(newState, lonelyTimers, id);
 
   } else if (oldState.channel && !newState.channel) {
     logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
-    stopLonelyTimer(lonelyTimers, id);
-    await botLeaveWhenEmpty(oldState);
+    //stopLonelyTimer(lonelyTimers, id);
+    //await botLeaveWhenEmpty(oldState);
 
     voiceChannelStates.delete(id);
   } else if (oldState.channelId !== newState.channelId) {
     logMessage(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`, componentName);
 
-    voiceChannelStates.set(id, newState.channel);
-    await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
-    await botLeaveWhenEmpty(oldState);
+    //voiceChannelStates.set(id, newState.channel);
+    //await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
+    //await botLeaveWhenEmpty(oldState);
   }
 });
 
