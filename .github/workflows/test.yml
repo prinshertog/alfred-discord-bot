@@ -2,12 +2,12 @@ name: Test run creation of docker image.
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4

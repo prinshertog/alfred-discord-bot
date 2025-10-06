@@ -8,6 +8,8 @@ import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
+//import { checkForLonelyTimers, handleLonelyInteraction, startLonelyTimer, stopLonelyTimer } from './logic/lonelyLogic.js';
+//import { botLeaveWhenEmpty } from './logic/voiceLogic.js';
 import { logMessage } from './lib/log.js';
 dotenv.config();
 
@@ -27,7 +29,9 @@ const client = new Client({ intents: [
 const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const userGames: UserGames = new Map();
 const gameStates: GameStates = new Map();
+//const lonelyTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const voiceChannelStates: Map<DiscordId, VoiceBasedChannel> = new Map();
+//const lonelyTimerTimeOuts: Map<DiscordId, NodeJS.Timeout> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
   logMessage(`Logged in as ${readyClient.user.tag}!`, componentName);
@@ -98,23 +102,37 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 });
 
+client.on(Events.InteractionCreate, async interaction => {
+  //await handleLonelyInteraction(interaction, client, voiceChannelStates);
+  //stopLonelyTimer(lonelyTimers, interaction.user.id);
+})
+
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   if (newState.member.user.bot) return; 
   const userName = newState.member.user.username;
   const id: DiscordId = newState.member.id;
   if (!oldState.channel && newState.channel) {
     logMessage(`${userName} joined ${newState.channel.name}`, componentName);
+    //voiceChannelStates.set(newState.member.id, newState.channel);
+
     await registerIfNotRegistered(id);
     await startTimer(userTimers, userName, id);
+    //await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
+    //await checkForLonelyTimers(newState, lonelyTimers, id);
 
   } else if (oldState.channel && !newState.channel) {
     logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
+    //stopLonelyTimer(lonelyTimers, id);
+    //await botLeaveWhenEmpty(oldState);
+
     voiceChannelStates.delete(id);
-  
   } else if (oldState.channelId !== newState.channelId) {
     logMessage(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`, componentName);
 
+    //voiceChannelStates.set(id, newState.channel);
+    //await startLonelyTimer(newState, lonelyTimers, id, lonelyTimerTimeOuts, client, newState.member.user);
+    //await botLeaveWhenEmpty(oldState);
   }
 });
 
