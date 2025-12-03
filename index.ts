@@ -104,17 +104,28 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   const id: DiscordId = newState.member.id;
   if (!oldState.channel && newState.channel) {
     logMessage(`${userName} joined ${newState.channel.name}`, componentName);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     await registerIfNotRegistered(id);
     await startTimer(userTimers, userName, id);
 
   } else if (oldState.channel && !newState.channel) {
     logMessage(`${userName} left ${oldState.channel.name}`, componentName);
     await stopTimer(userTimers, userName, id);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     voiceChannelStates.delete(id);
   
   } else if (oldState.channelId !== newState.channelId) {
     logMessage(`${userName} switched from ${oldState.channel.name} to ${newState.channel.name}`, componentName);
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   }
 });
 
