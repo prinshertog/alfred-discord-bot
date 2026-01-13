@@ -14,7 +14,7 @@ pipeline {
             }
         }
         
-        stage('Build full application and push to docker hub.') {
+        stage('Build full application and push to docker hub. (dev)') {
             when {
                 branch 'dev'
             }
@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Build full application and push to docker hub.') {
+        stage('Build full application and push to docker hub. (main)') {
             when {
                 branch 'main'
             }
