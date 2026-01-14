@@ -2,7 +2,7 @@
 
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, getVoiceConnection, VoiceConnection } from "@discordjs/voice"
 import { Events, VoiceState } from "discord.js";
-import fs from 'fs';
+import fs from 'node:fs';
 import dotenv from 'dotenv';
 import { errorMessage, logMessage } from "../lib/log.js";
 dotenv.config();

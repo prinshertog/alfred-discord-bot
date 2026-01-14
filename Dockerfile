@@ -21,7 +21,6 @@ COPY package-lock.json .
 COPY package.json .
 COPY tsconfig.json .
 
-RUN apt-get update && apt-get install -y ffmpeg
-RUN npm i
+RUN npm i && apt update && apt install -y ffmpeg && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 CMD ["sh", "-c", "npm start"]
