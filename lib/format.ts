@@ -1,7 +1,7 @@
 'use strict'
 import { Temporal } from '@js-temporal/polyfill';
-import { Member } from '../lib/types';
-import { errorMessage } from './log.js';
+import type { Member } from '../lib/types.js';
+import { handleError } from './helper.js';
 
 const componentName = "format";
 
@@ -16,7 +16,7 @@ export async function formatLoungeTime(member: Member) {
     timeParts.push(`\`Seconds: ${formattedTime.seconds}\``); // always show seconds
     return timeParts.join(" ").toString();
   } catch (error) {
-    errorMessage(error, componentName);
+    handleError(error, componentName);
   }
 }
 

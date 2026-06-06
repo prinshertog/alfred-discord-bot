@@ -2,7 +2,8 @@
 import { REST, Routes } from 'discord.js';
 import commands from '../data/commands.json' with { type: 'json' };
 import dotenv from 'dotenv';
-import { errorMessage, logMessage } from './log.js';
+import { logMessage } from './log.js';
+import { handleError } from './helper.js';
 dotenv.config();
 const { TOKEN, CLIENT_ID, GUILD_ID } = process.env;
 const componentName = "loadCommands";
@@ -26,8 +27,8 @@ export async function loadCommands() {
             body: commands
         }
     );
-    logMessage('Successfully reloaded application (/) commands.', componentName);
     } catch (error) {
-        errorMessage(error, componentName);
+        handleError(error, componentName);
     }
+    logMessage('Successfully reloaded application (/) commands.', componentName);
 }

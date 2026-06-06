@@ -1,6 +1,6 @@
 'use strict'
 import { MongoClient } from 'mongodb'
-import { DiscordId } from '../lib/types';
+import type { DiscordId } from '../lib/types.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const { CONN_STR, DB_NAME } = process.env;

@@ -1,9 +1,10 @@
 'use strict'
-import { DiscordId, Member } from '../lib/types';
+import type { DiscordId, Member } from '../lib/types.js';
 import { formatLoungeTime, toMember } from '../lib/format.js';
 import { getMemberInformation, createMember, getTopStreetCredMembers, getTopLoungeTimeMembers } from '../database/members.js';
 import { Client } from 'discord.js';
 import { logMessage } from '../lib/log.js';
+import { handleError } from '../lib/helper.js';
 
 const componentName = "userLogic";
 
@@ -19,7 +20,7 @@ export async function getAboutMeForUser(id: DiscordId) {
             `Access Level: **${member.AccessLevel}**\n` +
             `Lounge Time: ${await formatLoungeTime(member)}\n`;
     } catch (error) {
-        throw new Error(error);
+        handleError(error, componentName);
     }
 }
 
@@ -31,7 +32,7 @@ export async function registerIfNotRegistered(id: DiscordId) {
             logMessage(`User ${id} registered!`, componentName);
         }
     } catch (error) {
-        throw new Error(error);
+        handleError(error, componentName);
     }
 }
 
@@ -41,6 +42,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
             case "loungetime": {
                 let message = "";
                 let memberData = await getTopLoungeTimeMembers(amount);
+                if (!memberData) throw Error(); 
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]);
                     const user = client.users.fetch(member.Id);
@@ -53,6 +55,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
             case "streetcred": {
                 let message = "";
                 let memberData = await getTopStreetCredMembers(amount);
+                if (!memberData) throw Error();
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]); 
                     const user = client.users.fetch(member.Id);
@@ -64,6 +67,6 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
             }
         }
     } catch (error) {
-        throw new Error(error);
+        handleError(error, componentName);
     }
 }

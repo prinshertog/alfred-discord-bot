@@ -4,26 +4,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - CONN_STR=mongodb://user:pass@mongodb:27017
-      - TOKEN=
-      - CLIENT_ID=
-      - GUILD_ID=
-      - DB_NAME=bot-db
-      - BOT_STATUS_MSG="Vengeance!"
-      - BOT_STATUS="online"
-      - MUSIC_FOLDER=/app/music
-      - LONELY_TIME=60000
-    volumes:
-      - ./music:/app/music
+    env_file:
+      - path: ./.env
+        required: true
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+    restart: always
   mongodb:
-    image: mongodb/mongodb-community-server:6.0-ubi8
+    image: mongo:4.4
     environment:
-      - MONGODB_INITDB_ROOT_USERNAME=user
-      - MONGODB_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
       - type: bind
         source: ./dockerdata
         target: /data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "mongodb://user:pass@localhost:27017/admin", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
