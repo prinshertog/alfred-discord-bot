@@ -44,7 +44,7 @@ client.on(Events.ClientReady, readyClient => {
     status: BOT_STATUS,
     activities: [{
       name: BOT_STATUS_MSG,
-      type: ActivityType.Custom,
+      type: ActivityType.Playing,
     }]
   })
 });
@@ -69,15 +69,15 @@ client.on(Events.InteractionCreate, async interaction => {
           flags: MessageFlags.Ephemeral
         });
         break;
-      case "hangman":
-        let letter: string = interaction.options.getString("letter") ?? "";
-        if (letter) {
-          letter = letter.toLowerCase();
-        } else {
-          throw Error("No letter given")
-        }
-        await game(id, letter, interaction, userGames, gameStates, client);
-        break;
+      // case "hangman":
+      //   let letter: string = interaction.options.getString("letter") ?? "";
+      //   if (letter) {
+      //     letter = letter.toLowerCase();
+      //   } else {
+      //     throw Error("No letter given")
+      //   }
+      //   await game(id, letter, interaction, userGames, gameStates, client);
+      //   break;
       case "leaderboard":
         let value = interaction.options.getInteger("entries");
         let amount = value ? value : 5;
