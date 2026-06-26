@@ -1,8 +1,9 @@
-'use strict'
 import { MongoClient } from 'mongodb'
 import type { DiscordId, Member } from '../lib/types.js';
 import dotenv from 'dotenv';
+
 dotenv.config();
+
 const { CONN_STR, DB_NAME } = process.env;
 
 if (CONN_STR == null) {

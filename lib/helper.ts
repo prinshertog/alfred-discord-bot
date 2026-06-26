@@ -1,5 +1,3 @@
-'use strict'
-
 import type { Interaction } from "discord.js";
 import { errorMessage } from "./log.js";
 

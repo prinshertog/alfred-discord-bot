@@ -1,8 +1,8 @@
-'use strict'
 import { addLoungeTime } from '../database/members.js';
 import { handleError } from './helper.js';
 import { logMessage } from './log.js';
 import { DiscordId } from './types.js';
+
 const componentName = "loungeTimer";
 
 export async function startTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId) {

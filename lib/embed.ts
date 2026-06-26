@@ -1,13 +1,19 @@
-'use strict'
 import { Client, ColorResolvable, EmbedBuilder } from 'discord.js';
 import dotenv from 'dotenv';
 import { handleError, isString } from './helper.js';
 import { Color } from '../data/global.js';
+
 dotenv.config();
+
 const { CLIENT_ID } = process.env;
 const componentName = "embed";
 
-export async function createEmbed(color: ColorResolvable, title: string, description: string, client?: Client): Promise<EmbedBuilder> {
+export async function createEmbed(
+    color: ColorResolvable, 
+    title: string, 
+    description: string, 
+    client?: Client
+): Promise<EmbedBuilder> {
     try {
         if (!isString(CLIENT_ID)) throw new Error("No CLIENT_ID");
         if (client) {

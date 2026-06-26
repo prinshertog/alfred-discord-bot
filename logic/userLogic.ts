@@ -1,4 +1,3 @@
-'use strict'
 import type { DiscordId, Member } from '../lib/types.js';
 import { formatLoungeTime, toMember } from '../lib/format.js';
 import { getMemberInformation, createMember, getTopStreetCredMembers, getTopLoungeTimeMembers } from '../database/members.js';

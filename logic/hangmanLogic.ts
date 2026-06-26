@@ -1,4 +1,3 @@
-'use strict'
 import { DiscordId, GameStates, UserGames } from "../lib/types.js";
 import { ChatInputCommandInteraction, Client, EmbedBuilder, MessageFlags } from "discord.js";
 import { updateStreetCred } from "../database/members.js";

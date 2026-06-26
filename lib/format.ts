@@ -1,4 +1,3 @@
-'use strict'
 import { Temporal } from '@js-temporal/polyfill';
 import type { Member } from '../lib/types.js';
 import { handleError } from './helper.js';

@@ -1,15 +1,15 @@
-'use strict'
 import { loadCommands } from './lib/loadCommands.js';
 import { DiscordId, GameStates, UserGames } from './lib/types.js';
 import { Client, Events, GatewayIntentBits, ActivityType, MessageFlags, PresenceStatusData, VoiceBasedChannel } from 'discord.js';
 import { getAboutMeForUser, getLeaderBoard, registerIfNotRegistered } from './logic/userLogic.js';
 import { startTimer, stopTimer } from './lib/loungeTimer.js';
-import { game } from './logic/hangmanLogic.js';
 import { createEmbed } from './lib/embed.js';
 import { Color } from './data/global.js';
 import dotenv from 'dotenv';
 import { logMessage } from './lib/log.js';
 import { handleError, isString } from './lib/helper.js';
+import { game } from './logic/hangmanLogic.js';
+
 dotenv.config();
 
 const { TOKEN, BOT_STATUS_ENV, BOT_STATUS_MSG } = process.env;
@@ -58,6 +58,7 @@ client.on(Events.InteractionCreate, async interaction => {
     }
     await registerIfNotRegistered(id);
     switch(interaction.commandName) {
+
       case "aboutme":
         await interaction.reply({
           embeds: [await createEmbed(
@@ -69,15 +70,17 @@ client.on(Events.InteractionCreate, async interaction => {
           flags: MessageFlags.Ephemeral
         });
         break;
-      // case "hangman":
-      //   let letter: string = interaction.options.getString("letter") ?? "";
-      //   if (letter) {
-      //     letter = letter.toLowerCase();
-      //   } else {
-      //     throw Error("No letter given")
-      //   }
-      //   await game(id, letter, interaction, userGames, gameStates, client);
-      //   break;
+
+      case "hangman":
+        let letter: string = interaction.options.getString("letter") ?? "";
+        if (letter) {
+          letter = letter.toLowerCase();
+        } else {
+          throw Error("No letter given")
+        }
+        await game(id, letter, interaction, userGames, gameStates, client);
+        break;
+
       case "leaderboard":
         let value = interaction.options.getInteger("entries");
         let amount = value ? value : 5;
