@@ -37,6 +37,7 @@ const userTimers: Map<DiscordId, NodeJS.Timeout> = new Map();
 const userGames: UserGames = new Map();
 const gameStates: GameStates = new Map();
 const voiceChannelStates: Map<DiscordId, VoiceBasedChannel> = new Map();
+const voteDisconnectUserList: Map<DiscordId, DiscordId[]> = new Map();
 
 client.on(Events.ClientReady, readyClient => {
   logMessage(`Logged in as ${readyClient.user.tag}!`, componentName);
@@ -97,6 +98,17 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         }
         break;
+      case "votedisconnect":
+        let userId: DiscordId = interaction.options.getUser("user").id;
+        let votedUserId: DiscordId = interaction.user.id
+        interaction.reply({
+          embeds: [await createEmbed(
+            Color.Blue,
+            "Vote Disconnect",
+            await voteDisconnect(userId, voteDisconnectUserList, interaction.guild, votedUserId),
+            client
+          )]
+        })
     }
 
   } catch (error) {
