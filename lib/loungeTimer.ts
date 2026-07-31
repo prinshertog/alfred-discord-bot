@@ -1,10 +1,11 @@
-'use strict'
 import { addLoungeTime } from '../database/members.js';
-import { errorMessage, logMessage } from './log.js';
+import { handleError } from './helper.js';
+import { logMessage } from './log.js';
 import { DiscordId } from './types.js';
+
 const componentName = "loungeTimer";
 
-export async function startTimer(userTimers, user, id: DiscordId) {
+export async function startTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId) {
   try {
     const usedTimer = userTimers.get(id);
     if (!usedTimer) {
@@ -15,17 +16,17 @@ export async function startTimer(userTimers, user, id: DiscordId) {
       logMessage(`Started timer for user ${user}.`, componentName);
     }
   } catch (error) {
-    errorMessage(error, componentName);
+    handleError(error, componentName);
   }
 }
 
-export async function stopTimer(userTimers, user, id: DiscordId) {
+export async function stopTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId) {
   try {
     const timer = userTimers.get(id);
     clearInterval(timer);
     userTimers.delete(id);
     logMessage(`Stopped timer for user ${user}.`, componentName);
   } catch (error) {
-    errorMessage(error, componentName);
+    handleError(error, componentName);
   }
 }

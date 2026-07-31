@@ -10,7 +10,7 @@
             {
                 "type": 3,
                 "name": "letter",
-                "description": "Letter you would like to gues",
+                "description": "Letter you would like to guess",
                 "required": true
             }
         ]
@@ -19,18 +19,6 @@
         "name": "leaderboard",
         "description": "Gives you a leaderboard",
         "options": [
-            {
-                "type": 1,
-                "name": "streetcred",
-                "description": "Gives the streetcred leaderboard.",
-                "options": [{
-                        "type": 4,
-                        "name": "entries",
-                        "description": "Amount of entries to be shown.",
-                        "required": false
-                    }
-                ]
-            },
             {
                 "type": 1,
                 "name": "loungetime",

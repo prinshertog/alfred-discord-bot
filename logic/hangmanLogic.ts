@@ -1,11 +1,10 @@
-'use strict'
 import { DiscordId, GameStates, UserGames } from "../lib/types.js";
 import { ChatInputCommandInteraction, Client, EmbedBuilder, MessageFlags } from "discord.js";
 import { updateStreetCred } from "../database/members.js";
 import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
 import { Color } from "../data/global.js";
-import { errorMessage } from "../lib/log.js";
+import { handleError, isError } from "../lib/helper.js";
 
 const componentName = "hangmanLogic";
 
@@ -45,14 +44,16 @@ export async function game(
 
         if (letter.length <= 1) {
             const method = interaction.replied ? 'editReply' : 'reply';
+            const gameStateId = gameStates.get(id);
+            if (!gameStateId) throw Error();
             await (interaction as any)[method]({
                 embeds: [await runGame(
                     id, 
                     client, 
                     letter, 
-                    gameStates.get(id).word, 
-                    gameStates.get(id).guessedLetters, 
-                    gameStates.get(id).wrongLetters, 
+                    gameStateId.word,
+                    gameStateId.guessedLetters, 
+                    gameStateId.wrongLetters, 
                     userGames, 
                     gameStates
                 )],
@@ -75,7 +76,7 @@ export async function game(
         }
 
     } catch (error) {
-        errorMessage(error, componentName);
+        handleError(error, componentName);
     }
 }
 
@@ -91,12 +92,12 @@ async function runGame(
 ) : Promise<EmbedBuilder> {
     try {
         if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) {
-        let message = returnWithLetters(
-            "**You already guessed that letter!**\n", 
-            guessedLetters,
-            wrongLetters
-        );
-        return await createEmbed(
+            let message = returnWithLetters(
+                "**You already guessed that letter!**\n", 
+                guessedLetters,
+                wrongLetters
+            );
+            return createEmbed(
                 Color.Red,
                 "Hangman",
                 message,
@@ -124,37 +125,52 @@ async function runGame(
                     "**Game Ended**";
                 updateStreetCred(id, 50);
             }
-            return await createEmbed(
-                    Color.Green,
-                    "Hangman",
-                    message,
-                    client
-                );
+            return createEmbed(
+                Color.Green,
+                "Hangman",
+                message,
+                client
+            );
         } else {
             let message = returnWithLetters(
                 "That letter is not correct! **Womp Womp** -10 street cred\n", 
                 guessedLetters,
                 wrongLetters
             );
-            message += await draw(gameStates.get(id).currentHangmanSize);
+            let gameStatesId = gameStates.get(id);
+            if (!gameStatesId) throw Error();
+            message += await draw(gameStatesId.currentHangmanSize);
             updateStreetCred(id, -10)
-            if (gameStates.get(id).currentHangmanSize >= 7) {
+            if (gameStatesId.currentHangmanSize >= 7) {
                 message += "\n**Game Ended**\n"
                 message += `The word was: *${word}*`;
                 userGames.delete(id);
                 gameStates.delete(id);
             } else {
-                gameStates.get(id).currentHangmanSize += 1;
+                gameStatesId.currentHangmanSize += 1;
             }
-            return await createEmbed(
-                    Color.Red,
-                    "Hangman",
-                    message,
-                    client
-                );
+            return createEmbed(
+                Color.Red,
+                "Hangman",
+                message,
+                client
+            );
         }
     } catch (error) {
-        errorMessage(error, componentName);
+        handleError(error, componentName);
+        if (isError(error)) {
+            return createEmbed(
+                Color.Red,
+                "Error",
+                error.message
+            )
+        } else {
+            return createEmbed(
+                Color.Red,
+                "Error",
+                "Unknown error"
+            )
+        }
     }
 }
 
@@ -335,5 +351,7 @@ async function draw(
                 =========
                 \`\`\`
                 `;
+        default:
+            return "Wrong case";
         }
 }

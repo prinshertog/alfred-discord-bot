@@ -1,9 +1,11 @@
-'use strict'
 import { REST, Routes } from 'discord.js';
 import commands from '../data/commands.json' with { type: 'json' };
 import dotenv from 'dotenv';
-import { errorMessage, logMessage } from './log.js';
+import { logMessage } from './log.js';
+import { handleError } from './helper.js';
+
 dotenv.config();
+
 const { TOKEN, CLIENT_ID, GUILD_ID } = process.env;
 const componentName = "loadCommands";
 
@@ -19,15 +21,17 @@ export async function loadCommands() {
     }
 
     const rest = new REST({ version: '10' }).setToken(TOKEN);
+
     try {
         logMessage('Started refreshing application (/) commands.', componentName);
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), 
-        { 
-            body: commands
-        }
-    );
-    logMessage('Successfully reloaded application (/) commands.', componentName);
+            {    
+                body: commands
+            }
+        );
     } catch (error) {
-        errorMessage(error, componentName);
+        handleError(error, componentName);
     }
+
+    logMessage('Successfully reloaded application (/) commands.', componentName);
 }

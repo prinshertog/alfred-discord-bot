@@ -3,3 +3,6 @@ node_modules
 dockerdata
 music
 music2
+.agents
+.codex
+.idea

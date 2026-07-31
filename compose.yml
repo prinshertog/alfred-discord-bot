@@ -1,31 +1,28 @@
 services:
-  # bot:
-  #   #image: prinshertog/discord-alfred-bot
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - CONN_STR=mongodb://user:pass@mongodb:27017
-  #     - TOKEN=
-  #     - CLIENT_ID=
-  #     - GUILD_ID=
-  #     - DB_NAME=bot-db
-  #     - BOT_STATUS_MSG="Vengeance!"
-  #     - BOT_STATUS="online"
-  #     - MUSIC_FOLDER=/app/music
-  #   volumes:
-  #     - ./music:/app/music
-  #   depends_on:
-  #     - mongodb
+  bot:
+    #image: prinshertog/discord-alfred-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - path: ./.env
+        required: true
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: always
   mongodb:
-    image: mongodb/mongodb-community-server:latest
-    ports:
-      - 27017:27017
+    image: mongo:4.4
     environment:
-      - MONGODB_INITDB_ROOT_USERNAME=user
-      - MONGODB_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
-      - data:/data/db
-
-volumes:
-  data:
+      - type: bind
+        source: ./dockerdata
+        target: /data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "mongodb://user:pass@localhost:27017/admin", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
