@@ -1,4 +1,5 @@
 export type DiscordId = string;
+export type GuildId = string;
 export type Member = {
     Id: DiscordId,
     StreetCred: number,
@@ -10,4 +11,9 @@ export type GameStates = Map<DiscordId, {currentHangmanSize: number; word: strin
 export type BotMuteEndDateTime = {
     Id: DiscordId,
     MuteEndDateTime: Date
+}
+export type LoungeTime = {
+    Id: DiscordId,
+    GuildId: GuildId,
+    Time: number
 }

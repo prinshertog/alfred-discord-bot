@@ -56,6 +56,10 @@ export async function getAllMembers() {
     }
 }
 
+
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function addLoungeTime(id: DiscordId, time: number) {
     try {
         await collection.updateOne({Id: id}, {$inc: {LoungeTime: time}});
@@ -83,6 +87,9 @@ export async function getTopStreetCredMembers(amount: number) {
     }
 }
 
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function getTopLoungeTimeMembers(amount: number) {
     try {
         return await collection.find({})

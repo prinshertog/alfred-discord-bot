@@ -41,7 +41,7 @@ export async function getLeaderBoard(amount: number, leaderBoardType: string, cl
             case "loungetime": {
                 let message = "";
                 let memberData = await getTopLoungeTimeMembers(amount);
-                if (!memberData) throw Error(); 
+                if (!memberData) throw Error();
                 for (let i = 0; i < memberData.length; i++) {
                     const member = toMember(memberData[i]);
                     const user = client.users.fetch(member.Id);
