@@ -16,7 +16,12 @@ pipeline {
 
         stage('Build full application and push to docker hub. (branch specific)') {
             when {
-                branch 'dev'
+                not {
+                    anyOf {
+                        branch 'dev'
+                        branch 'main'
+                    }
+                }
             }
             steps {
                 withCredentials([usernamePassword(
