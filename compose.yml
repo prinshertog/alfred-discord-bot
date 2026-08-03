@@ -1,16 +1,15 @@
 services:
-  # bot:
-  #   #image: prinshertog/discord-alfred-bot
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - path: ./.env
-  #       required: true
-  #   depends_on:
-  #     mongodb:
-  #       condition: service_healthy
-  #   restart: always
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - path: ./.env
+        required: true
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: always
   mongodb:
     image: mongo:4.4
     environment:
