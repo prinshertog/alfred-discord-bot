@@ -25,11 +25,14 @@ export async function getLoungeTime(id: DiscordId, guildId: GuildId) {
 
 export async function addLoungeTime(id: DiscordId, guildId: GuildId, time: number) {
     try {
-        const loungeTime = await getLoungeTime(id, guildId);
-        if (!loungeTime) {
-            createLoungeTime(id, guildId)
-        }
-        await collection.updateOne({Id: id, GuildId: guildId}, {$inc: {Time: time}})
+        await collection.updateOne(
+            { Id: id, GuildId: guildId },
+            {
+                $setOnInsert: { Id: id, GuildId: guildId },
+                $inc: { Time: time }
+            },
+            { upsert: true }
+        );
     } catch (error) {
         handleError(error, componentName);
     }

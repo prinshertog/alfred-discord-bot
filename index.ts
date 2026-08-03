@@ -5,6 +5,7 @@ import { logMessage } from './lib/log.js';
 import { isString } from './lib/helper.js';
 import { handleCommands } from './logic/commandHandler.js';
 import { handleLoungeTimers } from './logic/loungeTimeHandler.js';
+import { updateDatabase } from './database/dynamicUpdater.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ if (!isString(TOKEN)) {
 let BOT_STATUS: PresenceStatusData = BOT_STATUS_ENV as PresenceStatusData;
 
 loadCommands();
+await updateDatabase();
 
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,

@@ -1,6 +1,5 @@
 import { DiscordId, GameStates, UserGames } from "../lib/types.js";
 import { ChatInputCommandInteraction, Client, EmbedBuilder, MessageFlags } from "discord.js";
-import { updateStreetCred } from "../database/members.js";
 import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
 import { Color } from "../data/global.js";
@@ -14,7 +13,6 @@ export async function game(
     interaction: ChatInputCommandInteraction, 
     userGames: UserGames, 
     gameStates: GameStates,
-    client: Client
 ) {
     try {
         let gameStarted = userGames.get(id);
@@ -35,8 +33,7 @@ export async function game(
                     Color.Blue,
                     "Game started\n",
                     "To guess a letter use **/hangman (letter)**\n" +
-                    "The language of the words is: **Nederlands**",
-                    client
+                    "The language of the words is: **English**"
                 )],
                 flags: MessageFlags.Ephemeral
             });
@@ -48,8 +45,7 @@ export async function game(
             if (!gameStateId) throw Error();
             await (interaction as any)[method]({
                 embeds: [await runGame(
-                    id, 
-                    client, 
+                    id,
                     letter, 
                     gameStateId.word,
                     gameStateId.guessedLetters, 
@@ -68,8 +64,7 @@ export async function game(
                 embeds: [await createEmbed(
                     Color.Red,
                     "ERROR",
-                    message,
-                    client
+                    message
                 )],
                 flags: MessageFlags.Ephemeral
             })
@@ -82,7 +77,6 @@ export async function game(
 
 async function runGame(
     id: DiscordId,
-    client: Client, 
     letter: string, 
     word: string, 
     guessedLetters: string[], 
@@ -100,8 +94,7 @@ async function runGame(
             return createEmbed(
                 Color.Red,
                 "Hangman",
-                message,
-                client
+                message
             );
         } else {
             await addLetterToGuessedLetters(word, guessedLetters, letter);
@@ -112,35 +105,31 @@ async function runGame(
         
         if (isValidLetter(letter, word)) {
             let message = returnWithLetters(
-                "That was a valid letter! **+20 street cred.**\n", 
+                "That was a valid letter!\n", 
                 guessedLetters,
                 wrongLetters
             );
-            updateStreetCred(id, 20);
             if (wordEqualsGuessedLetters(word, guessedLetters)) {
                 userGames.delete(id);
                 gameStates.delete(id);
                 message += 
-                    "You guessed the word! **+50 street cred**\n" +
+                    "You guessed the word!\n" +
                     "**Game Ended**";
-                updateStreetCred(id, 50);
             }
             return createEmbed(
                 Color.Green,
                 "Hangman",
-                message,
-                client
+                message
             );
         } else {
             let message = returnWithLetters(
-                "That letter is not correct! **Womp Womp** -10 street cred\n", 
+                "That letter is not correct! **Womp Womp**\n", 
                 guessedLetters,
                 wrongLetters
             );
             let gameStatesId = gameStates.get(id);
             if (!gameStatesId) throw Error();
             message += await draw(gameStatesId.currentHangmanSize);
-            updateStreetCred(id, -10)
             if (gameStatesId.currentHangmanSize >= 7) {
                 message += "\n**Game Ended**\n"
                 message += `The word was: *${word}*`;
@@ -152,8 +141,7 @@ async function runGame(
             return createEmbed(
                 Color.Red,
                 "Hangman",
-                message,
-                client
+                message
             );
         }
     } catch (error) {
@@ -224,7 +212,7 @@ function isValidLetter(
 }
 
 async function getWord() {
-    let randomNumber = await getRandomInt(299);
+    let randomNumber = await getRandomInt(words.woorden.length);
     return words.woorden[randomNumber];
 }
 

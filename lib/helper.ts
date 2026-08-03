@@ -1,5 +1,7 @@
 import type { Interaction } from "discord.js";
 import { errorMessage } from "./log.js";
+import { createEmbed } from "./embed.js";
+import { Color } from "../data/global.js";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -24,16 +26,28 @@ export function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
-export function handleError(error: unknown, componentName: string, interaction?: Interaction) {
+export async function handleError(error: unknown, componentName: string, interaction?: Interaction) {
     if (!isError(error)) {
       errorMessage("Unknown error", componentName);
       if (interaction && interaction.isRepliable()) {
-        interaction.reply(`${error}`)
+        interaction.reply({
+          embeds: [await createEmbed(
+            Color.Red,
+            "ERROR", 
+            `${error}`
+          )]
+        });
       }
     } else {
       errorMessage(error.message, componentName);
       if (interaction && interaction.isRepliable()) {
-        interaction.reply(`${error.message}`)
+        interaction.reply({
+          embeds: [await createEmbed(
+            Color.Red,
+            "ERROR", 
+            `${error.message}`
+          )]
+        });
       }
     }
 }

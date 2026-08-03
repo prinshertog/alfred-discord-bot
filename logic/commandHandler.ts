@@ -1,7 +1,5 @@
 import { Interaction } from "discord.js";
-import { getLeaderBoard } from "./userLogic.js";
-import { createEmbed } from "../lib/embed.js";
-import { Color } from "../data/global.js";
+import { replyWithLoungeTimeLeaderboard } from "./loungeTimerLogic.js";
 import { GameStates, UserGames } from "../lib/types.js";
 import { game } from "./hangmanLogic.js";
 import { handleError } from "../lib/helper.js";
@@ -16,7 +14,6 @@ export async function handleCommands(interaction: Interaction) {
   const client = interaction.client;
   const guildId = interaction.guildId;
   if (!guildId) return;
-
   try {
     const id = interaction?.member?.user.id
     if (!id) {
@@ -30,7 +27,7 @@ export async function handleCommands(interaction: Interaction) {
         } else {
           throw Error("No letter given")
         }
-        await game(id, letter, interaction, userGames, gameStates, client);
+        await game(id, letter, interaction, userGames, gameStates);
         break;
 
       case "leaderboard":
@@ -38,14 +35,7 @@ export async function handleCommands(interaction: Interaction) {
         let amount = value ? value : 5;
         switch(interaction.options.getSubcommand()) {
           case "loungetime":
-            interaction.reply({
-              embeds: [await createEmbed(
-                Color.Blue, 
-                "Lounge Time Leader Board", 
-                await getLeaderBoard(amount, "loungetime", client, guildId) ?? "Undefined",
-                client
-              )]
-            });
+            await replyWithLoungeTimeLeaderboard(amount, client, guildId, interaction);
             break;
         }
         break;
