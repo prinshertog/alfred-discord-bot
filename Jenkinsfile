@@ -13,6 +13,28 @@ pipeline {
                 sh 'docker build . -t "prinshertog/discord-alfred-bot"'
             }
         }
+
+        stage('Build full application and push to docker hub. (branch specific)') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-prinshertog',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                      echo "$DOCKER_PASS" | docker login \
+                        --username "$DOCKER_USER" \
+                        --password-stdin
+                    '''
+                    sh """
+                    docker build . -t "prinshertog/discord-alfred-bot:${env.BRANCH_NAME}" && docker push prinshertog/discord-alfred-bot:${env.BRANCH_NAME}
+                    """
+                }
+            }
+        }
         
         stage('Build full application and push to docker hub. (dev)') {
             when {
