@@ -35,7 +35,7 @@ pipeline {
                         --password-stdin
                     '''
                     sh """
-                    docker build . -t "prinshertog/discord-alfred-bot:${env.BRANCH_NAME}" && docker push prinshertog/discord-alfred-bot:${env.BRANCH_NAME}
+                    docker build . -t "prinshertog/discord-alfred-bot:${env.GIT_COMMIT}" && docker push prinshertog/discord-alfred-bot:${env.GIT_COMMIT}
                     """
                 }
             }
