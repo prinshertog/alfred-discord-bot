@@ -1,22 +1,12 @@
-import { MongoClient } from 'mongodb'
 import type { DiscordId, Member } from '../lib/types.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const { CONN_STR, DB_NAME } = process.env;
-
-if (CONN_STR == null) {
-    throw new Error("No connection string found!");
-}
-
-const client = new MongoClient(CONN_STR);
-await client.connect();
+import { db } from './clients.js'
 
 const collectionName = "members";
-const db = client.db(DB_NAME);
 const collection = db.collection(collectionName);
 
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function getMemberInformation(id: DiscordId) {
     try {
         const member = await collection.findOne({Id: id});
@@ -35,6 +25,9 @@ export async function getMemberInformation(id: DiscordId) {
     }
 }
 
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function createMember(id: DiscordId) {
     try {
         await collection.insertOne({
@@ -48,14 +41,16 @@ export async function createMember(id: DiscordId) {
     }
 }
 
-export async function getAllMembers() {
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
+export function getAllMembers() {
     try {
         return collection.find({});
     } catch (error) {
         console.error(error);
     }
 }
-
 
 /**
 @deprecated Use the new function in the loungeTimers database implementation
@@ -68,6 +63,9 @@ export async function addLoungeTime(id: DiscordId, time: number) {
     }
 }
 
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function updateStreetCred(id: DiscordId, amount: number) {
     try {
         await collection.updateOne({Id: id}, {$inc: {StreetCred: amount}});
@@ -76,6 +74,9 @@ export async function updateStreetCred(id: DiscordId, amount: number) {
     }
 }
 
+/**
+@deprecated Use the new function in the loungeTimers database implementation
+*/
 export async function getTopStreetCredMembers(amount: number) {
     try {
         return await collection.find({})

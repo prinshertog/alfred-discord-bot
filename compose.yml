@@ -1,21 +1,23 @@
 services:
-  bot:
-    #image: prinshertog/discord-alfred-bot
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - path: ./.env
-        required: true
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    restart: always
+  # bot:
+  #   #image: prinshertog/discord-alfred-bot
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - path: ./.env
+  #       required: true
+  #   depends_on:
+  #     mongodb:
+  #       condition: service_healthy
+  #   restart: always
   mongodb:
     image: mongo:4.4
     environment:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - 27017:27017
     volumes:
       - type: bind
         source: ./dockerdata

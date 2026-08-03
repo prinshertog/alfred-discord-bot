@@ -1,7 +1,11 @@
+function timestamp() {
+  return new Date().toISOString();
+}
+
 export function logMessage(message: string, component: string) {
-    console.log(`${Date.now} INFO (${component}): ${message}`);
+    console.log(`${timestamp()} INFO (${component}): ${message}`);
 }
 
 export function errorMessage(message: string, component: string) {
-    console.error(`${Date.now} (${component}): ${message}`)
+    console.error(`${timestamp()} ERROR (${component}): ${message}`)
 }

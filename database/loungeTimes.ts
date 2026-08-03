@@ -1,37 +1,25 @@
-import { MongoClient } from 'mongodb'
+import { handleError } from '../lib/helper.js';
 import type { DiscordId, GuildId, LoungeTime } from '../lib/types.js';
-import dotenv from 'dotenv';
-import { Guild } from 'discord.js';
-
-dotenv.config();
-
-const { CONN_STR, DB_NAME } = process.env;
-
-if (CONN_STR == null) {
-    throw new Error("No connection string found!");
-}
-
-const client = new MongoClient(CONN_STR);
-await client.connect();
+import { db } from './clients.js'
 
 const collectionName = "loungeTimes";
-const db = client.db(DB_NAME);
 const collection = db.collection(collectionName);
+const componentName = "loungeTimesDatabase";
 
 export async function getLoungeTime(id: DiscordId, guildId: GuildId) {
     try {
         const loungeTime = await collection.findOne({Id: id, GuildId: guildId});
         if (!loungeTime) {
-            throw new Error(`No lounge time found for user with id <@${id}>!`);
+            return null;
         }
         const mappedLoungeTime: LoungeTime = {
             Id: id,
             GuildId: guildId,
             Time: loungeTime.Time
         }
-        return loungeTime.Time;
+        return mappedLoungeTime;
     } catch (error) {
-        console.error(error);
+        handleError(error, componentName);
     }
 }
 
@@ -43,29 +31,30 @@ export async function addLoungeTime(id: DiscordId, guildId: GuildId, time: numbe
         }
         await collection.updateOne({Id: id, GuildId: guildId}, {$inc: {Time: time}})
     } catch (error) {
-        console.error(error);
+        handleError(error, componentName);
     }
 }
 
 export async function createLoungeTime(id: DiscordId, guildId: GuildId) {
     try {
+        if (!await getLoungeTime(id, guildId)) return;
         await collection.insertOne({
             Id: id,
             GuildId: guildId,
             Time: 0
         });
     } catch (error) {
-        console.error(error);
+        handleError(error, componentName);
     }
 }
 
-export async function getTopLoungeTimeMembers(amount: number) {
+export async function getTopLoungeTimeMembers(amount: number, guildId: GuildId) {
     try {
-        return await collection.find({})
+        return await collection.find({GuildId: guildId})
             .sort({Time: -1})
             .limit(amount)
             .toArray();
     } catch (error) {
-        console.error(error);
+        handleError(error, componentName);
     }
 }

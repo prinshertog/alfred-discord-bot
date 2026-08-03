@@ -1,16 +1,16 @@
-import { addLoungeTime } from '../database/members.js';
-import { handleError } from './helper.js';
-import { logMessage } from './log.js';
-import { DiscordId } from './types.js';
+import { addLoungeTime } from '../database/loungeTimes.js';
+import { handleError } from '../lib/helper.js';
+import { logMessage } from '../lib/log.js';
+import { DiscordId, GuildId } from '../lib/types.js';
 
 const componentName = "loungeTimer";
 
-export async function startTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId) {
+export async function startTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId, guildId: GuildId) {
   try {
     const usedTimer = userTimers.get(id);
     if (!usedTimer) {
       const timer = setInterval(() => {
-        addLoungeTime(id, 5);
+        addLoungeTime(id, guildId, 5);
       }, 5000);
       userTimers.set(id, timer);
       logMessage(`Started timer for user ${user}.`, componentName);
