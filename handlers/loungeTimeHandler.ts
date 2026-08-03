@@ -1,6 +1,6 @@
 import { VoiceBasedChannel, VoiceState } from "discord.js";
 import { logMessage } from "../lib/log.js";
-import { startTimer, stopTimer } from "./loungeTimerLogic.js";
+import { startTimer, stopTimer } from "../logic/loungeTimerLogic.js";
 import { DiscordId } from "../lib/types.js";
 
 const componentName = "loungeTimeHandler";

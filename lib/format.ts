@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
-import type { LoungeTime, Member } from '../lib/types.js';
+import type { LoungeTime } from '../lib/types.js';
 import { handleError } from './helper.js';
 
 const componentName = "format";

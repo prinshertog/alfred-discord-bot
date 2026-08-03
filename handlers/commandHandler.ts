@@ -1,12 +1,11 @@
 import { Interaction } from "discord.js";
-import { replyWithLoungeTimeLeaderboard } from "./loungeTimerLogic.js";
+import { replyWithLoungeTimeLeaderboard } from "../logic/loungeTimerLogic.js";
 import { GameStates, UserGames } from "../lib/types.js";
-import { game } from "./hangmanLogic.js";
+import { game } from "../logic/hangmanLogic.js";
 import { handleError } from "../lib/helper.js";
 
 const userGames: UserGames = new Map();
 const gameStates: GameStates = new Map();
-
 const componentName = "commandHandler";
 
 export async function handleCommands(interaction: Interaction) {

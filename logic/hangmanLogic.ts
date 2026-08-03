@@ -1,5 +1,5 @@
 import { DiscordId, GameStates, UserGames } from "../lib/types.js";
-import { ChatInputCommandInteraction, Client, EmbedBuilder, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags } from "discord.js";
 import { createEmbed } from '../lib/embed.js';
 import words from '../data/words.json' with { type: 'json' };
 import { Color } from "../data/global.js";
@@ -25,8 +25,8 @@ export async function game(
                     guessedLetters: [],
                     wrongLetters: []
                 }
-            ); // Save the word.
-            userGames.set(id, true); // Set the game to started for user.
+            );
+            userGames.set(id, true);
             await startCleanupTimer(id, userGames, gameStates);
             await interaction.reply({
                 embeds: [await createEmbed(

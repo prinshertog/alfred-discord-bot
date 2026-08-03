@@ -3,9 +3,10 @@ import { Client, Events, GatewayIntentBits, ActivityType, PresenceStatusData } f
 import dotenv from 'dotenv';
 import { logMessage } from './lib/log.js';
 import { isString } from './lib/helper.js';
-import { handleCommands } from './logic/commandHandler.js';
-import { handleLoungeTimers } from './logic/loungeTimeHandler.js';
+import { handleCommands } from './handlers/commandHandler.js';
+import { handleLoungeTimers } from './handlers/loungeTimeHandler.js';
 import { updateDatabase } from './database/dynamicUpdater.js';
+import { randomChatParticipationLogic } from './logic/randomChatParticipationLogic.js';
 
 dotenv.config();
 
@@ -28,7 +29,8 @@ await updateDatabase();
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildMembers,
-  GatewayIntentBits.GuildVoiceStates
+  GatewayIntentBits.GuildVoiceStates,
+  GatewayIntentBits.GuildMessages
 ]});
 
 client.on(Events.ClientReady, readyClient => {
@@ -41,6 +43,10 @@ client.on(Events.ClientReady, readyClient => {
     }]
   })
 });
+
+client.on(Events.MessageCreate, async message => {
+  randomChatParticipationLogic(message);
+})
 
 client.on(Events.InteractionCreate, async interaction => {
   await handleCommands(interaction);
