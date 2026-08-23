@@ -27,29 +27,26 @@ export function isBoolean(value: unknown): value is boolean {
 }
 
 export async function handleError(error: unknown, componentName: string, interaction?: Interaction) {
-    if (!isError(error)) {
-      errorMessage("Unknown error", componentName);
-      if (interaction && interaction.isRepliable()) {
-        interaction.reply({
-          embeds: [await createEmbed(
-            Color.Red,
-            "ERROR", 
-            `${error}`
-          )]
-        });
-      }
+  const message = isError(error) ? error.message : "Unknown error";
+  errorMessage(message, componentName);
+
+  if (!interaction || !interaction.isRepliable()) {
+    return;
+  }
+
+  try {
+    const embed = {
+      embeds: [await createEmbed(Color.Red, "ERROR", message)]
+    };
+
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply(embed);
     } else {
-      errorMessage(error.message, componentName);
-      if (interaction && interaction.isRepliable()) {
-        interaction.reply({
-          embeds: [await createEmbed(
-            Color.Red,
-            "ERROR", 
-            `${error.message}`
-          )]
-        });
-      }
+      await interaction.reply(embed);
     }
+  } catch (replyError) {
+    errorMessage(`Failed to send error reply: ${replyError}`, componentName);
+  }
 }
 
 export function getRandomInt(min: number, max: number): number {

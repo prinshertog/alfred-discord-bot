@@ -43,31 +43,35 @@ export async function replyWithLoungeTimeLeaderboard(amount: number, client: Cli
     let loungeTimeData = await getTopLoungeTimeMembers(amount, guildId);
     if (!loungeTimeData || loungeTimeData.length <= 0) {
       throw Error("Could not find lounge time data! There might not be data yet.");
-    };
+    }
     if (!interaction.isRepliable()) {
       throw Error("Interaction is not repliable!");
     }
+
+    await interaction.deferReply();
+
     const guild = await client.guilds.fetch(guildId);
     for (let i = 0; i < loungeTimeData.length; i++) {
-        const loungeTime = toLoungeTimeData(loungeTimeData[i]);
-        let member = null;
-        let userDisplayName = loungeTime.Id;
-        try {
-          member = await guild.members.fetch(loungeTime.Id);
-        } catch (error) {
-          logMessage(`Could not find username for user with id ${loungeTime.Id}`, componentName);
-        }
-        if (member) {
-          userDisplayName = member.displayName;
-        }
-        message += 
-            `\n**${i + 1}.** *${userDisplayName}*\n` +
-            `${await formatLoungeTime(loungeTime)}\n`;
+      const loungeTime = toLoungeTimeData(loungeTimeData[i]);
+      let member = null;
+      let userDisplayName = loungeTime.Id;
+      try {
+        member = await guild.members.fetch(loungeTime.Id);
+      } catch (error) {
+        logMessage(`Could not find username for user with id ${loungeTime.Id}`, componentName);
+      }
+      if (member) {
+        userDisplayName = member.displayName;
+      }
+      message +=
+        `\n**${i + 1}.** *${userDisplayName}*\n` +
+        `${await formatLoungeTime(loungeTime)}\n`;
     }
-    interaction.reply({
+
+    await interaction.editReply({
       embeds: [await createEmbed(
         Color.Blue,
-        "Lounge Time Leaderboard", 
+        "Lounge Time Leaderboard",
         message
       )]
     });
