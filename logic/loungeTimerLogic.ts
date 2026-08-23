@@ -7,7 +7,7 @@ import { createEmbed } from '../lib/embed.js';
 import { formatLoungeTime, toLoungeTimeData } from '../lib/format.js';
 import { Color } from '../data/global.js';
 
-const componentName = "loungeTimer";
+const componentName = "loungeTimerLogic";
 
 export async function startTimer(userTimers: Map<DiscordId, NodeJS.Timeout>, user: string, id: DiscordId, guildId: GuildId, client: Client) {
   try {
@@ -50,8 +50,7 @@ export async function replyWithLoungeTimeLeaderboard(amount: number, client: Cli
     const guild = await client.guilds.fetch(guildId);
     for (let i = 0; i < loungeTimeData.length; i++) {
         const loungeTime = toLoungeTimeData(loungeTimeData[i]);
-        const member = await guild.members.fetch(loungeTime.Id);
-        const userDisplayName = member.displayName;
+        const userDisplayName = (await guild.members.fetch(loungeTime.Id)).displayName ?? loungeTime.Id;
         message += 
             `\n**${i + 1}.** *${userDisplayName}*\n` +
             `${await formatLoungeTime(loungeTime)}\n`;
