@@ -12,6 +12,7 @@ ENV BOT_STATUS="online"
 
 COPY data data
 COPY database database
+COPY handlers handlers
 COPY lib lib
 COPY logic logic
 COPY index.ts .
