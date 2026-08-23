@@ -50,8 +50,13 @@ export async function replyWithLoungeTimeLeaderboard(amount: number, client: Cli
     const guild = await client.guilds.fetch(guildId);
     for (let i = 0; i < loungeTimeData.length; i++) {
         const loungeTime = toLoungeTimeData(loungeTimeData[i]);
-        const member = await guild.members.fetch(loungeTime.Id);
+        let member = null;
         let userDisplayName = loungeTime.Id;
+        try {
+          member = await guild.members.fetch(loungeTime.Id);
+        } catch (error) {
+          logMessage(`Could not find username for user with id ${loungeTime.Id}`, componentName);
+        }
         if (member) {
           userDisplayName = member.displayName;
         }
