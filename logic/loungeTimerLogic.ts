@@ -50,7 +50,11 @@ export async function replyWithLoungeTimeLeaderboard(amount: number, client: Cli
     const guild = await client.guilds.fetch(guildId);
     for (let i = 0; i < loungeTimeData.length; i++) {
         const loungeTime = toLoungeTimeData(loungeTimeData[i]);
-        const userDisplayName = (await guild.members.fetch(loungeTime.Id)).displayName ?? loungeTime.Id;
+        const member = await guild.members.fetch(loungeTime.Id);
+        let userDisplayName = loungeTime.Id;
+        if (member) {
+          userDisplayName = member.displayName;
+        }
         message += 
             `\n**${i + 1}.** *${userDisplayName}*\n` +
             `${await formatLoungeTime(loungeTime)}\n`;
