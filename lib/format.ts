@@ -1,12 +1,12 @@
 import { Temporal } from '@js-temporal/polyfill';
-import type { Member } from '../lib/types.js';
+import type { LoungeTime } from '../lib/types.js';
 import { handleError } from './helper.js';
 
 const componentName = "format";
 
-export async function formatLoungeTime(member: Member) {
+export async function formatLoungeTime(loungeTimeData: LoungeTime) {
   try {
-    const duration = Temporal.Duration.from({ seconds: member.LoungeTime });
+    const duration = Temporal.Duration.from({ seconds: loungeTimeData.Time });
     const formattedTime = duration.round({ largestUnit: "days" });
     const timeParts = [];
     if (formattedTime.days) timeParts.push(`\`Days: ${formattedTime.days}\``);
@@ -19,11 +19,10 @@ export async function formatLoungeTime(member: Member) {
   }
 }
 
-export function toMember(raw: any): Member {
+export function toLoungeTimeData(raw: any): LoungeTime {
   return {
     Id: raw.Id,
-    StreetCred: raw.StreetCred,
-    AccessLevel: raw.AccessLevel,
-    LoungeTime: raw.LoungeTime
-  };
+    GuildId: raw.GuildId,
+    Time: raw.Time
+  }
 }

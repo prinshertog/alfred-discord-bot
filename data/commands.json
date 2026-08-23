@@ -1,9 +1,5 @@
 [
     {
-        "name": "aboutme",
-        "description": "Gives you information about you!"
-    },
-    {
         "name": "hangman",
         "description": "Starts hangman game.",
         "options": [
@@ -30,18 +26,6 @@
                         "required": false
                     }
                 ]
-            }
-        ]
-    },
-    {
-        "name": "votedisconnect",
-        "description": "Vote to disconnect a user.",
-        "options": [
-            {
-                "type": 6,
-                "name": "user",
-                "description": "User you would like to vote disconnect.",
-                "required": true
             }
         ]
     }
